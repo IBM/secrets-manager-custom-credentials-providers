@@ -11,7 +11,7 @@ IBM Cloud Secrets Manager service now supports generating custom credentials. Cu
 
 A **credentials provider** is an IBM Cloud Code Engine Job that implements a Secrets Manager interface. It is typically designed to create and delete credentials for a third-party system.
 
-This model enables cloud developers to extend Secrets Manager by supporting additional secret types. Developers can then create and manage these secrets alongside the built-in service secrets, ensuring a uniform lifecycle management experience.
+This model enables cloud developers to extend Secrets Manager by supporting additional secret types. Secrets Manager users can then create and manage these secrets alongside the built-in service secrets, ensuring a uniform lifecycle management experience.
 
 ## Designing a new credentials provider Job
 
