@@ -81,7 +81,7 @@ example-certificate-provider-go/
 * `main.go` - Simple entry point that calls the job's Run function
 * `job_config.json` - Defines the input and output parameters for the job
 * `certificate_provider.go` - Contains the core logic for certificate generation and management
-* `secrets_manager_job.go` - Manages interaction with Secrets Manager API including configuration loading and task updates. This file was automatically generated using the [job-code-generator](../tools/readme.md#using-the-job-code-generator) tool.
+* `secrets_manager_job.go` - Manages interaction with Secrets Manager API including configuration loading and task updates. This file was automatically generated using the [job-code-generator](../tools/README.md#using-the-job-code-generator) tool.
 * `logger.go` - Provides structured logging capabilities with task and action identifiers
 
 ### Building and Testing
@@ -178,7 +178,7 @@ ibmcloud ce project select --name $CE_PROJECT_NAME
 
 #### 2. Create the Job in Code Engine from Local Source Code
 
-Use the [**job-deployer**](../tools/readme.md#using-the-job-deployer-tool) tool to create and deploy the job
+Use the [**job-deployer**](../tools/README.md#using-the-job-deployer-tool) tool to create and deploy the job
 
 From the **certificate-provider-job** directory:
 
@@ -389,7 +389,7 @@ TASK_ID=<task_id>
 
 The task id has format **sm-task-uuid** and is used as the job run name in Code Engine.
 
-Observe the Job run log (requires using this [Tip](./readme.md#tip-when-testing-your-job-you-can-change-the-value-of-ce_remove_completed_jobs-to-review-completed-job-runs-configurations-and-logs-for-example-using-the-code-engine-ui))
+Observe the Job run log (requires using this [Tip](./README.md#tip-when-testing-your-job-you-can-change-the-value-of-ce_remove_completed_jobs-to-review-completed-job-runs-configurations-and-logs-for-example-using-the-code-engine-ui))
 
 ```bash
 ibmcloud ce jobrun logs -f -n $TASK_ID

@@ -67,7 +67,7 @@ Run the generator:
 ./job-code-generator -jobdir=path_to/my-job -jobfiledir=path_to/my-job/internal/job
 ```
 
-This will create the `secrets_manager_job.go` file in `./my-job/internal/job` containing the necessary constants, structs, and helper functions.
+This will create the `secrets_manager_job.go` file in `./my-job/internal/job` containing the necessary structs, and helper functions.
 
 ### License
 

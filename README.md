@@ -100,4 +100,4 @@ Refer to the following job flow diagram for more details:
 
 Learn about the [Credentials Provider tools](./tools/README.md)
 
-Try the [example-certificate-provider](./example-certificate-provider-go/readme.md)
+Try the [example-certificate-provider](./example-certificate-provider-go/README.md)
