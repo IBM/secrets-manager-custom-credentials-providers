@@ -60,7 +60,6 @@ The job produces these values that are stored in Secrets Manager:
 | `SMOUT_PRIVATE_KEY_BASE64` | The base64-encoded private key (PEM format) (required) |
 | `SMOUT_CERTIFICATE_BASE64` | The base64-encoded certificate (PEM format) (required) |
 
-
 ## Development
 
 ### Project Structure
@@ -235,7 +234,7 @@ Create a new Secrets Manager instance. Skip this step if you already have an ins
 SM_INSTANCE_NAME=secrets-manager-test
 
 # Create an instance. This process takes a few minutes to complete
-ibmcloud resource service-instance-create $SM_INSTANCE_NAME secrets-manager trial $REGION --resource-group $RESOURCE_GROUP
+ibmcloud resource service-instance-create $SM_INSTANCE_NAME secrets-manager trial $REGION -g $RESOURCE_GROUP -p '{"allowed_network": "public-and-private"}'
 
 # Capture the instance ID
 SM_INSTANCE_ID=<instance_id>

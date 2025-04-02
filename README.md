@@ -1,17 +1,19 @@
-# Getting Started with IBM Cloud Secrets Manager Custom Credentials and Code Engine Jobs
+# Getting Started with IBM Cloud Secrets Manager Custom Credentials and Credentials Provider Code Engine Jobs
 
 This repository contains:
 
-* Best practices, helper tools and a getting started example for designing and building Code Engine Jobs for generating Secrets Manager Custom Credentials secrets.
+* Best practices, helper tools, and a getting-started example for designing and building Code Engine Jobs to generate Secrets Manager Custom Credentials secrets.
 * A catalog of credentials providers that can be used with IBM Cloud Secrets Manager service.
 
 ## Overview
 
-IBM Cloud Secrets Manager service now supports generating custom credentials. Custom credentials can represent various types of secrets, implemented using a **credentials provider**.
+IBM Cloud Secrets Manager service now supports generating **custom credentials** which can represent various types of secrets, implemented using a **credentials provider**.
 
 A **credentials provider** is an IBM Cloud Code Engine Job that implements a Secrets Manager interface. It is typically designed to create and delete credentials for a third-party system.
 
-This model enables cloud developers to extend Secrets Manager by supporting additional secret types. Secrets Manager users can then create and manage these secrets alongside the built-in service secrets, ensuring a uniform lifecycle management experience.
+Secrets Manager triggers  **credentials provider** job runs and manage their asynchronous execution using secret **tasks**.
+
+The  **credentials provider** model enables cloud developers to extend Secrets Manager by supporting additional secret types. Secrets Manager users can then create and manage custom credentials secrets alongside built-in service secrets, ensuring a consistent lifecycle management experience.
 
 ## Designing a new credentials provider Job
 
