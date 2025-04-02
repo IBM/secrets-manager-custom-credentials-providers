@@ -38,7 +38,7 @@ The job custom environment variables are defined in: [job_config.json](./job_con
 
 | Environment Variable | Description |
 |---------------------|-------------|
-| `SMIN_COMMON_NAME` | The common name (CN) for the certificate (required) |
+| `SMIN_COMMON_NAME` | The common name (CN) for the certificate |
 
 ##### Optional Parameters
 

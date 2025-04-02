@@ -31,14 +31,23 @@ The service environment variables that are passed by Secrets Manager to the job:
 | `SM_SECRET_ID` | The ID of the secret being processed |
 | `SM_SECRET_NAME` | The name of the secret being processed |
 | `SM_SECRET_GROUP_ID` | The ID of the Secrets Manager secret group that contains the secret |
-| `SM_CREDENTIALS_ID` | Provided only for the `delete_credentials` action. The credentials ID assigned at creation. |
-| `SM_SECRET_VERSION_ID` | Provided only for the `delete_credentials` action. The Secrets Manager secret version ID that the job run is operating on |
+| `SM_CREDENTIALS_ID` | Only provided for `delete_credentials` action. The credentials ID assigned at creation |
+| `SM_SECRET_VERSION_ID` | Only provided for `delete_credentials` action. The Secrets Manager secret version ID that the job run is operating on |
 
 #### Job Custom Parameters
 
+The job custom environment variables are defined in: [job_config.json](./job_config.json)
+
+##### Required Parameters
+
+| Environment Variable | Description |
+|---------------------|-------------|
+| `SMIN_LOGIN_SECRET_ID` | Service Credentials secret ID containing the login credentials to the PostgreSQL database  |
+
+##### Optional Parameters
+
 | Environment Variable | Description | Default Value |
 |---------------------|-------------|---------------|
-| `SMIN_LOGIN_SECRET_ID` | Service Credentials secret ID containing the login credentials to the PostgreSQL database  | (required) |
 | `SMIN_SCHEMA_NAME` | PostgreSQL schema to grant read access | `public` |
 
 #### Output Values
@@ -47,14 +56,14 @@ The job produces these values that are stored in Secrets Manager:
 
 | Environment Variable | Description |
 |---------------------|-------------|
-| `SMOUT_USERNAME` | Dynamically generated PostgreSQL role name |
-| `SMOUT_PASSWORD` | Securely generated random password |
-| `SMOUT_COMPOSED` | A fully composed PostgreSQL connection string with the generated credentials |
-| `SMOUT_CERTIFICATE_BASE64` | Base64-encoded TLS certificate for secure connection |
+| `SMOUT_USERNAME` | Dynamically generated PostgreSQL role name (required) |
+| `SMOUT_PASSWORD` | Securely generated random password (required) |
+| `SMOUT_COMPOSED` | A fully composed PostgreSQL connection string with the generated credentials (required) |
+| `SMOUT_CERTIFICATE_BASE64` | Base64-encoded TLS certificate for secure connection (required) |
 
 ## Security Features
 
-* **Dynamic Credentials**: Credentials are dynamically generated with minimal privileges and are automatically deleted after use.
+* **Dynamic Credentials**: Credentials are dynamically generated with minimal privileges and are automatically deleted after second rotation.
 * **Least Privilege**: Grants read-only access to a specific database schema.
 * **Secure Password Generation**:
   * 64-character, randomly generated password.
@@ -86,6 +95,12 @@ postgres-credentials-provider/
 ### Building and Testing
 
 ```bash
+# Clone the secrets-manager-custom-credentials-providers repository to your local machine
+git clone https://github.com/IBM/secrets-manager-custom-credentials-providers
+
+# navigate to the provider directory
+cd ibmcloud-databases-postgres-provider-go
+
 # Run test
 go test ./internal/job
 
@@ -96,14 +111,14 @@ go build -o postgres-credentials-provider ./cmd
 ### How It Works
 
 1. **Initialization**: Reads configuration from environment variables.
-2. **Login Credentials Retrieval**: Retrieves PostgreSQL login connection details from Secrets Manager Service Credentials secret.
+2. **Login Credentials Retrieval**: Fetches PostgreSQL login connection details from a Secrets Manager **Service Credentials** secret.
 3. **Role Generation**:
-   * Creates a new PostgreSQL role with a unique name.
+   * Creates a new PostgreSQL role with a unique name prefixed with `secrets_manager_` prefix.
    * Generates a secure random password.
 4. **Privilege Assignment**:
    * Grants USAGE on the specified schema.
-   * Grants SELECT permissions on all current tables in the schema.
-5. **Output**: Provides new credentials back to Secrets Manager.
+   * Grants SELECT permissions on all existing tables in the schema.
+5. **Output**: Sends the newly generated credentials back to Secrets Manager.
 
 ## Usage with IBM Cloud Secrets Manager
 
@@ -118,29 +133,18 @@ go build -o postgres-credentials-provider ./cmd
   * Secrets Manager CLI Plugin.
 * An IBM Cloud Databases for PostgreSQL instance.
 * An IBM Cloud Secrets Manager instance.
-* ./jq.
+* jq command-line JSON processor.
 
 ### Step-by-Step Setup
 
-#### 1. Clone the Repositories
-
-```bash
-# Clone this repository to your local machine
-git clone https://github.ibm.com/ARIES/postgres-credentials-provider.git
-
-# Clone the secrets-manager-job-tools repository 
-git clone https://github.com/ARIES/secrets-manager-job-tools.git
-```
-
-**For ease of use, this example assumes that both repositories are cloned into a common parent directory.**
-
-#### 2. Create a Code Engine Project
+#### 1. Create a Code Engine Project
 
 ```bash
 # Set variables
 REGION=us-south
 RESOURCE_GROUP=Default
-PROJECT_NAME=postgres-credentials-provider
+CE_PROJECT_NAME=postgres-credentials-provider
+CE_JOB_NAME=postgres-credentials-provider-job
 
 # Login to your IBM Cloud account
 ibmcloud login [--sso]
@@ -159,24 +163,19 @@ CE_PROJECT_ID=<project_id>
 CE_PROJECT_CRN=<project_crn>
 
 # Select the project
-ibmcloud ce project select --name $PROJECT_NAME
+ibmcloud ce project select --name $CE_PROJECT_NAME
 ```
 
-#### 3. Create the Job in Code Engine from Local Source Code
+#### 2. Create the Job in Code Engine from Local Source Code
 
-Use the [**job-deployer**](../readme.md#using-the-job-deployer-tool) tool to create and deploy the job
+Use the [**job-deployer**](../tools/README.md#using-the-job-deployer-tool) tool to create and deploy the job
 
 ```bash
 # Make the script executable by running:
-chmod +x ../secrets-manager-job-tools/job-deployer.sh
-```
-
-```bash
-# Set job name
-CE_JOB_NAME=postgres-credentials-provider-job
+chmod +x ../tools/job-deployer.sh
 
 # Create a job from local source code
-../secrets-manager-job-tools/job-deployer.sh --jobdir . --name $CE_JOB_NAME --action create
+../tools/job-deployer.sh --jobdir . --name $CE_JOB_NAME --action create
 
 # Review the command and execute it. This command can take few minutes to complete
 ibmcloud ce job create --name postgres-credentials-provider-job 
@@ -190,29 +189,34 @@ ibmcloud ce job create --name postgres-credentials-provider-job
   --env SMOUT_USERNAME="type:string, required:true" 
 
 Execute this command? (y/n): 
-
 ```
 
-#### 4. Create an IAM Service ID for Secrets Manager Integration
+This command will:
+
+* Upload your local source code to Code Engine
+* Use the specified Dockerfile to build an image and store it in IBM Cloud Container Registry
+* Create a job definition using the built image and using the environment variables defined in: [job_config.json](./job_config.json)  
+
+#### 3. Create an IAM Service ID for Secrets Manager access
 
 ```bash
 # Create Service ID
-ibmcloud iam service-id-create postgres-credentials-provider-sid --description "Service ID for Secret Manager Postgres Credentials Provider"
+ibmcloud iam service-id-create postgres-credentials-provider-sid --description "Service ID for Secret Manager Postgres Credentials provider"
 
 # Capture the ID of this Service ID
 SERVICEID_ID=<serviceid_id>
 ```
 
-This Service ID will later be assigned with IAM **SecretTaskUpdater** and **SecretsReader** service policies scoped to the Secrets Manager instance Secret Group containing the certificate-provider secrets.
+This Service ID will later be assigned with IAM **SecretTaskUpdater** and **SecretsReader** service policies scoped to the Secrets Manager instance Secret Group containing the postgres provider secrets.
 
-#### 5. Configure a Secrets Manager Secret Group
+#### 4. Configure a Secrets Manager Secret Group
 
 ```bash
 # Read your Secrest Manager instance configuration
-ibmcloud resource service-instance $SM_INSTANCE_NAME
+ibmcloud resource service-instance "<your-secrets-manager-instance-name>"
 
 # Capture the Secrets Manager instance ID
-SM_INSTANCE_ID=<instance_id>
+SM_INSTANCE_ID=<instance_guid>
 
 # Configure Secrets Manager CLI to use the Secrets Manager instance public endpoint
 ibmcloud secrets-manager config set service-url https://$SM_INSTANCE_ID.$REGION.secrets-manager.appdomain.cloud
@@ -226,9 +230,44 @@ ibmcloud secrets-manager secret-group-create \
 SECRET_GROUP_ID=<secret_group_id>
 ```
 
-#### 6. Configure an IAM policy for the Secret Group
+#### 5. Configure IAM policies
 
-Create an IAM service ID policy assigning **SecretTaskUpdater** and **SecretsReader** roles scoped to the Secrets Manager instance Secret Group containing the postgres-credentials-provider secrets.
+Read your Databases for PostgreSQL instance configuration
+
+```bash
+# Capture the name of your Cloud Databases for PostgeSQL 
+PG_INSTANCE_NAME=<your-postgres-instance-name>
+
+# Read instance configuration
+ibmcloud resource service-instance $PG_INSTANCE_NAME
+
+# Capture the PostgreSQL instance ID and CRN
+PG_INSTANCE_ID=<instance_id>   
+PG_INSTANCE_CRN=<instance_crn> 
+```
+
+Create an IAM authorization policy assigning the **Key Manager** role to the Secrets Manager instance instance for the Databases for PostgreSQL instance.
+
+```bash
+ibmcloud iam authorization-policy-create \
+    secrets-manager databases-for-postgresql \
+    "Key Manager" \
+    --source-service-instance-id $SM_INSTANCE_ID \
+    --target-service-instance-id $PG_INSTANCE_ID
+```
+
+Create an IAM authorization policy assigning **Viewer** and **Writer** roles to the Secrets Manager instance for the Code Engine project:
+
+```bash
+# Create authorization policy
+ibmcloud iam authorization-policy-create \
+    secrets-manager codeengine \
+    Viewer,Writer \
+    --source-service-instance-id $SM_INSTANCE_ID \
+    --target-service-instance-id $CE_PROJECT_ID
+```
+
+Create an IAM service ID policy assigning **SecretTaskUpdater** and **SecretsReader** roles scoped to the Secrets Manager instance Secret Group containing the postgres provider secrets.
 
 ```bash
 # Create an IAM service ID policy
@@ -240,9 +279,9 @@ ibmcloud iam service-policy-create $SERVICEID_ID \
     --resource $SECRET_GROUP_ID
 ```
 
-#### 7. Configure an Secrets Manager IAM Credentials secret
+#### 6. Configure an Secrets Manager IAM Credentials secret
 
-Create an IAM Credentials secret for managing the IAM Service ID API key that the postgres-credentials-provider will use to authenticate back with Secrets Manager.
+Create an IAM Credentials secret for managing the IAM Service ID API key that the postgres provider will use to authenticate back with Secrets Manager.
 
 ```bash
 # Create an IAM Credentials secret
@@ -264,30 +303,9 @@ ibmcloud secrets-manager secret-create \
 IAM_CREDENTIALS_SECRET_ID=<iam_credentials_secret_id>
 ```
 
-#### 8. Assign Service to Service authorization for PostgreSQL
+#### 7. Create a Service Credentials secret
 
-```bash
-# Read your Databases for PostgreSQL instance configuration
-ibmcloud resource service-instance $PG_INSTANCE_NAME
-
-# Capture the PostgreSQL instance ID and CRN
-PG_INSTANCE_ID=<instance_id>   
-PG_INSTANCE_CRN=<instance_crn> 
-```
-
-Create a service authorization policy assigning the **Key Manager** role to the Secrets Manager instance for the Databases for PostgreSQL instance.
-
-```bash
-ibmcloud iam authorization-policy-create \
-    secrets-manager databases-for-postgresql \
-    "Key Manager" \
-    --source-service-instance-id $SM_INSTANCE_ID \
-    --target-service-instance-id $PG_INSTANCE_ID
-```
-
-#### 9. Create a Service Credentials secret
-
-Create a Service Credentials secret managing the login credentials for the postgres-credentials-provider.
+Create a Service Credentials secret managing the login credentials for the postgres provider.
 
 ```bash
 ibmcloud secrets-manager secret-create \
@@ -311,21 +329,9 @@ ibmcloud secrets-manager secret-create \
 LOGIN_SECRET_ID=<secret_id>
 ```
 
-#### 10. Assign Service to Service authorization for Code Engine
+#### 8. Create a Secrets Manager Custom Credentials configuration
 
-Create a service authorization policy assigning **Viewer** and **Writer** roles to the Secrets Manager instance for the Code Engine project.
-
-```bash
-ibmcloud iam authorization-policy-create \
-    secrets-manager codeengine \
-    Viewer,Writer \
-    --source-service-instance-id $SM_INSTANCE_ID \
-    --target-service-instance-id $CE_PROJECT_ID
-```
-
-#### 11. Create a Secrets Manager Custom Credentials configuration
-
-Create a Custom Credentials Configuration for the postgres-credentials-provider
+Create a Custom Credentials Configuration for the postgres provider
 
 ```bash
 # Create a custom credetials configuration
@@ -341,7 +347,7 @@ ibmcloud secrets-manager configuration-create \
     }"
 ```
 
-#### 12. Create a Secrets Manager Custom Credentials secret
+#### 9. Create a Secrets Manager Custom Credentials secret
 
 ```bash
 # Create a custom credentials secret
@@ -366,9 +372,9 @@ ibmcloud secrets-manager secret-create \
 $PG_SECRET_ID=<secret_id>
 ```
 
-#### 13. Connect to your database
+#### 10. Test the postgres credentials
 
-Connect to the database using the credentials from the custom credentials secret.
+Connect to the postgres database using the credentials from the custom credentials secret.
 
 ```bash
 # Download the postgres certificate
