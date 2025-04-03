@@ -1,6 +1,6 @@
 module postgres-credentials-provider
 
-go 1.23.4
+go 1.24
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.19.0
