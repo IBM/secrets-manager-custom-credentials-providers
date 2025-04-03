@@ -153,10 +153,10 @@ ibmcloud login [--sso]
 ibmcloud target -r $REGION -g $RESOURCE_GROUP
 
 # Create a Code Engine project
-ibmcloud ce project create --name $PROJECT_NAME
+ibmcloud ce project create --name $CE_PROJECT_NAME
 
 # Get the Code Engine project
-ibmcloud ce project get --name $PROJECT_NAME
+ibmcloud ce project get --name $CE_PROJECT_NAME
 
 # Capture the project ID and CRN
 CE_PROJECT_ID=<project_id>

@@ -84,7 +84,7 @@ echo -e "${BLUE}${RESET}"
 
 # Build the full command for execution
 if [ "$ACTION" == "create" ]; then
-    CMD="ibmcloud ce job create --name $JOB_NAME --build-source $JOB_DIR --build-dockerfile Dockerfile --cpu 0.5 --memory 1G $ENV_FLAGS"
+    CMD="ibmcloud ce job create --name $JOB_NAME --build-source $JOB_DIR --build-dockerfile Dockerfile --retrylimit 0 --cpu 0.5 --memory 1G $ENV_FLAGS"
 else
     CMD="ibmcloud ce job update --name $JOB_NAME --build-source $JOB_DIR --build-dockerfile Dockerfile $ENV_FLAGS"
 fi
