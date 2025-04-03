@@ -146,7 +146,7 @@ Before using this script, ensure you have:
 * Target your resource group:
 
   ```bash
-  ibmcloud target -g RESOURCE_GROUP
+  ibmcloud target -g <resource-group>
   ```
 
 * Check that the correct project is selected:
