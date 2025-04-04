@@ -113,7 +113,7 @@ go build -o postgres-credentials-provider ./cmd
 1. **Initialization**: Reads configuration from environment variables.
 2. **Login Credentials Retrieval**: Fetches PostgreSQL login connection details from a Secrets Manager **Service Credentials** secret.
 3. **Role Generation**:
-   * Creates a new PostgreSQL role with a unique name prefixed with `secrets_manager_` prefix.
+   * Creates a new PostgreSQL role with a unique name prefixed with `secrets_manager_`.
    * Generates a secure random password.
 4. **Privilege Assignment**:
    * Grants USAGE on the specified schema.
@@ -207,12 +207,12 @@ ibmcloud iam service-id-create postgres-credentials-provider-sid --description "
 SERVICEID_ID=<serviceid_id>
 ```
 
-This Service ID will later be assigned with IAM **SecretTaskUpdater** and **SecretsReader** service policies scoped to the Secrets Manager instance Secret Group containing the postgres provider secrets.
+This Service ID will later be assigned with IAM **SecretTaskUpdater** and **SecretsReader** service policies scoped to the Secrets Manager instance Secret Group containing the postgres credentials provider secrets.
 
 #### 4. Configure a Secrets Manager Secret Group
 
 ```bash
-# Read your Secrest Manager instance configuration
+# Read your Secrets Manager instance configuration
 ibmcloud resource service-instance "<your-secrets-manager-instance-name>"
 
 # Capture the Secrets Manager instance ID
@@ -267,7 +267,7 @@ ibmcloud iam authorization-policy-create \
     --target-service-instance-id $CE_PROJECT_ID
 ```
 
-Create an IAM service ID policy assigning **SecretTaskUpdater** and **SecretsReader** roles scoped to the Secrets Manager instance Secret Group containing the postgres provider secrets.
+Create an IAM service ID policy assigning **SecretTaskUpdater** and **SecretsReader** roles scoped to the Secrets Manager instance Secret Group containing the postgres credentials provider secrets.
 
 ```bash
 # Create an IAM service ID policy
@@ -281,14 +281,14 @@ ibmcloud iam service-policy-create $SERVICEID_ID \
 
 #### 6. Configure an Secrets Manager IAM Credentials secret
 
-Create an IAM Credentials secret for managing the IAM Service ID API key that the postgres provider will use to authenticate back with Secrets Manager.
+Create an IAM Credentials secret for managing the IAM Service ID API key that the postgres credentials provider will use to authenticate back with Secrets Manager.
 
 ```bash
 # Create an IAM Credentials secret
 ibmcloud secrets-manager secret-create \
     --secret-type iam_credentials \
     --secret-name postgres-credentials-provider-apikey \
-    --secret-description "Secret managing the apikey for the postgres-credentials-provider" \
+    --secret-description "Secret managing the apikey for the postgres credentials provider" \
     --secret-group-id $SECRET_GROUP_ID \
     --secret-ttl 90d \
     --iam-credentials-service-id $SERVICEID_ID \
@@ -305,13 +305,13 @@ IAM_CREDENTIALS_SECRET_ID=<iam_credentials_secret_id>
 
 #### 7. Create a Service Credentials secret
 
-Create a Service Credentials secret managing the login credentials for the postgres provider.
+Create a Service Credentials secret managing the login credentials for the postgres credentials provider.
 
 ```bash
 ibmcloud secrets-manager secret-create \
     --secret-type service_credentials \
     --secret-name postgres-credentials-provider-login \
-    --secret-description "Secret managing the login credentials for the postgres-credentials-provider" \
+    --secret-description "Secret managing the login credentials for the postgres credentials provider" \
     --secret-group-id $SECRET_GROUP_ID \
     --secret-ttl 90d \
     --secret-source-service "{
@@ -331,10 +331,10 @@ LOGIN_SECRET_ID=<secret_id>
 
 #### 8. Create a Secrets Manager Custom Credentials configuration
 
-Create a Custom Credentials Configuration for the postgres provider
+Create a Custom Credentials configuration for the PostgreSQL credentials provider.
 
 ```bash
-# Create a custom credetials configuration
+# Create a custom credentials configuration
 ibmcloud secrets-manager configuration-create \
     --config-type custom_credentials_configuration \
     --name postgres-credentials-provider \
@@ -369,12 +369,12 @@ ibmcloud secrets-manager secret-create \
   }'
 
 # Capture the secret ID
-$PG_SECRET_ID=<secret_id>
+PG_SECRET_ID=<secret_id>
 ```
 
 #### 10. Test the postgres credentials
 
-Connect to the postgres database using the credentials from the custom credentials secret.
+Connect to the PostgreSQL database using the credentials from the custom credentials secret.
 
 ```bash
 # Download the postgres certificate
@@ -393,11 +393,29 @@ psql "$COMPOSED&sslrootcert=pg.crt"
 SELECT SESSION_USER;
 ```
 
+### Troubleshooting
+
+If the secret did not become active, check the task status:
+
+```bash
+# Retrieve the secret
+ibmcloud secrets-manager secret --id=$PG_SECRET_ID
+
+# Capture the task ID
+TASK_ID=<processing_task_id>
+
+# Check the Secret Task Status
+ibmcloud secrets-manager task --secret-id $PG_SECRET_ID --id $TASK_ID
+
+# View Job Run Logs. Note: To observe job logs, modify the environment variable CE_REMOVE_COMPLETED_JOBS to a different value (e.g., 3d), then create a new secret.:
+ibmcloud ce jobrun logs -f -n $TASK_ID
+```
+
 ## Limitations
 
 * Postgres credentials provider supports read-only access to a single schema.
-* Credentials generated by the Postgres credentials provider will not grant access to database tables added after their creation. To obtain credentials with access to the new tables, rotate the Custom Credentials secret.
+* Credentials generated by the PostgreSQL credentials provider do not automatically grant access to tables created after their issuance. To obtain credentials with access to the new tables, rotate the Custom Credentials secret.
 
 ## License
 
-This example is open-source using Apache License 2.0 and available for use and modification as needed.
+This provider is open-source using Apache License 2.0.

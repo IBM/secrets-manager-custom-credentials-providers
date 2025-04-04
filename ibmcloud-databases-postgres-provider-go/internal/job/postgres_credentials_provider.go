@@ -86,7 +86,7 @@ func generatePGCredentials(client SecretsManagerClient, config *Config) {
 	}
 
 	roleName := generateRoleName()
-	schemaName := config.SM_PG_SCHEMA_NAME
+	schemaName := config.SM_SCHEMA_NAME
 
 	roleOID, err := createReadOnlyRole(pg.dbPool, roleName, password, schemaName)
 	if err != nil {
@@ -137,7 +137,7 @@ func deletePGCredentials(client SecretsManagerClient, config *Config) {
 	}
 
 	defer pg.dbPool.Close()
-	schemaName := config.SM_PG_SCHEMA_NAME
+	schemaName := config.SM_SCHEMA_NAME
 	err = deleteReadOnlyRole(pg.dbPool, roleOID, schemaName)
 	if err != nil {
 		updateTaskAboutErrorAndExit(client, config, Err10024, fmt.Sprintf("cannot delete postgres role for schema:'%s'. error: %s", schemaName, err))
@@ -329,7 +329,7 @@ func connectToPostgres(connStr string, certificate []byte) (*pgxpool.Pool, error
 
 func fetchPGServiceCredentials(client SecretsManagerClient, config *Config) (sc map[string]interface{}, err error) {
 
-	secret, err := GetSecret(client, config.SM_PG_SERVICE_CREDENTIALS_SECRET_ID)
+	secret, err := GetSecret(client, config.SM_LOGIN_SECRET_ID)
 	if err != nil {
 		if strings.Contains(err.Error(), "Provided API key could not be found") {
 			logger.Error(fmt.Errorf("cannot call the secrets manager service: %v", err))
@@ -340,7 +340,7 @@ func fetchPGServiceCredentials(client SecretsManagerClient, config *Config) (sc 
 	// Todo - remove this workaround for stage. ICD for PG is not availabe in stage. Using a KV secret with prod PG Service Credetails.
 	kvSecret, ok := secret.(*sm.KVSecret)
 	if !ok {
-		return nil, fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected kv type", config.SM_PG_SERVICE_CREDENTIALS_SECRET_ID, secret)
+		return nil, fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected kv type", config.SM_LOGIN_SECRET_ID, secret)
 	}
 
 	return kvSecret.Data, nil
@@ -384,8 +384,8 @@ func updateTaskAboutErrorAndExit(client SecretsManagerClient, config *Config, co
 // setDefaultValues sets default values for non required config variables if not set by the user
 func setDefaultValues(config *Config) {
 	// optional env variable, use postgres default 'public' schema as default
-	if config.SM_PG_SCHEMA_NAME == "" {
-		config.SM_PG_SCHEMA_NAME = "public"
+	if config.SM_SCHEMA_NAME == "" {
+		config.SM_SCHEMA_NAME = "public"
 	}
 }
 

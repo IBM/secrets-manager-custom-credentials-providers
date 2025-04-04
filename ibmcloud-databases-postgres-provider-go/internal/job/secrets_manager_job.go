@@ -20,27 +20,26 @@ import (
 // Config holds all configuration settings
 type Config struct {
 	// Common fields
-	SM_ACCESS_APIKEY     string
-	SM_INSTANCE_URL      string
-	SM_SECRET_GROUP_ID   string
-	SM_SECRET_NAME       string
-	SM_SECRET_TASK_ID    string
-	SM_CREDENTIALS_ID    string
+	SM_ACCESS_APIKEY string
+	SM_INSTANCE_URL string
+	SM_SECRET_GROUP_ID string
+	SM_SECRET_NAME string
+	SM_SECRET_TASK_ID string
+	SM_CREDENTIALS_ID string
 	SM_SECRET_VERSION_ID string
-	SM_SECRET_ID         string
-	SM_ACTION            string
+	SM_SECRET_ID string
+	SM_ACTION string
 
 	// User fields
-	SM_PG_SCHEMA_NAME                   string // From env: SMIN_PG_SCHEMA_NAME
-	SM_PG_SERVICE_CREDENTIALS_SECRET_ID string // From env: SMIN_PG_SERVICE_CREDENTIALS_SECRET_ID
+	SM_SCHEMA_NAME string // From env: SMIN_SCHEMA_NAME
+	SM_LOGIN_SECRET_ID string // From env: SMIN_LOGIN_SECRET_ID
 }
-
 // CredentialsPayload contains fields for SMOUT_ environment variables
 type CredentialsPayload struct {
 	CERTIFICATE_BASE64 string `json:"certificate_base64" validate:"required,max=100000"`
-	COMPOSED           string `json:"composed" validate:"required,max=100000"`
-	PASSWORD           string `json:"password" validate:"required,max=100000"`
-	USERNAME           string `json:"username" validate:"required,max=100000"`
+	COMPOSED string `json:"composed" validate:"required,max=100000"`
+	PASSWORD string `json:"password" validate:"required,max=100000"`
+	USERNAME string `json:"username" validate:"required,max=100000"`
 }
 
 // ConfigFromEnv creates a Config from environment variables and validates it
@@ -109,14 +108,14 @@ func ConfigFromEnv() (Config, error) {
 	}
 
 	// Process user variables
-	// Process SM_PG_SCHEMA_NAME as string
-	value = GetEnvVar("SM_PG_SCHEMA_NAME_VALUE")
-
+	// Process SM_SCHEMA_NAME as string
+	value = GetEnvVar("SM_SCHEMA_NAME_VALUE")
+	
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
 		if isRequired {
-			errs = append(errs, "required environment variable SM_PG_SCHEMA_NAME_VALUE is not set")
+			errs = append(errs, "required environment variable SM_SCHEMA_NAME_VALUE is not set")
 		}
 	} else {
 		// Process the value based on type
@@ -125,18 +124,18 @@ func ConfigFromEnv() (Config, error) {
 			errs = append(errs, err.Error())
 		} else {
 			// Add to config
-			reflect.ValueOf(&config).Elem().FieldByName("SM_PG_SCHEMA_NAME").Set(reflect.ValueOf(processedValue))
+			reflect.ValueOf(&config).Elem().FieldByName("SM_SCHEMA_NAME").Set(reflect.ValueOf(processedValue))
 		}
 	}
 
-	// Process SM_PG_SERVICE_CREDENTIALS_SECRET_ID as secret_id
-	value = GetEnvVar("SM_PG_SERVICE_CREDENTIALS_SECRET_ID_VALUE")
-
+	// Process SM_LOGIN_SECRET_ID as secret_id
+	value = GetEnvVar("SM_LOGIN_SECRET_ID_VALUE")
+	
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := true
 		if isRequired {
-			errs = append(errs, "required environment variable SM_PG_SERVICE_CREDENTIALS_SECRET_ID_VALUE is not set")
+			errs = append(errs, "required environment variable SM_LOGIN_SECRET_ID_VALUE is not set")
 		}
 	} else {
 		// Process the value based on type
@@ -145,7 +144,7 @@ func ConfigFromEnv() (Config, error) {
 			errs = append(errs, err.Error())
 		} else {
 			// Add to config
-			reflect.ValueOf(&config).Elem().FieldByName("SM_PG_SERVICE_CREDENTIALS_SECRET_ID").Set(reflect.ValueOf(processedValue))
+			reflect.ValueOf(&config).Elem().FieldByName("SM_LOGIN_SECRET_ID").Set(reflect.ValueOf(processedValue))
 		}
 	}
 
@@ -323,7 +322,7 @@ func UpdateTask(client SecretsManagerClient, config *Config, secretTaskPrototype
 
 	return result, nil
 }
-
+	
 // ValidatedStructToMap converts a struct to a map[string]interface{} while performing validation
 // according to the struct's validation tags
 func ValidatedStructToMap(input any) (map[string]interface{}, error) {
@@ -350,7 +349,7 @@ func ValidatedStructToMap(input any) (map[string]interface{}, error) {
 
 	return result, nil
 }
-
+	
 func GetValueByPath(data map[string]interface{}, path string) (interface{}, bool) {
 	segments := strings.Split(path, "/")
 
