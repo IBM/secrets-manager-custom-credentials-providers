@@ -1,0 +1,40 @@
+{
+    "job_env_variables": [
+        {
+            "name": "SMIN_COMMON_NAME",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMIN_ORG",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_COUNTRY",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_SAN",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_EXPIRATION_DAYS",
+            "value": "type:integer, required:false"
+        },
+        {
+            "name": "SMIN_KEY_ALGO",
+            "value": "type:enum[RSA|ECDSA], required:false"
+        },
+        {
+            "name": "SMIN_SIGN_ALGO",
+            "value": "type:enum[SHA256|SHA512], required:false"
+        },
+        {
+            "name": "SMOUT_PRIVATE_KEY_BASE64",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_CERTIFICATE_BASE64",
+            "value": "type:string, required:true"
+        }
+    ]
+}
