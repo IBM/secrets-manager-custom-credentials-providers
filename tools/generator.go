@@ -71,7 +71,7 @@ func main() {
 	// Define and parse command-line flags.
 	jobDir := flag.String("jobdir", "", "Path to the job project directory")
 	jobFileDir := flag.String("jobfiledir", "", "Directory where the secrets manager job file will be generated")
-	packageName := *flag.String("package", "job", "Optional package name for the generated file")
+	packageName := flag.String("package", "job", "Optional package name for the generated file")
 	force := flag.Bool("force", false, "Overwrite existing files if set to true")
 	flag.Parse()
 
@@ -86,9 +86,16 @@ func main() {
 		fmt.Printf("Error reading job configuration file: %v\n", err)
 		os.Exit(1)
 	}
+
+	fmt.Printf("Processing configuration file:\n%s\n", string(userData))
 	var userSchema *JobConfig
 	if err := json.Unmarshal(userData, &userSchema); err != nil {
 		fmt.Printf("Error parsing job configuration file: %v\n", err)
+		os.Exit(1)
+	}
+
+	if userSchema.JobEnvVariables == nil || len(userSchema.JobEnvVariables) == 0 {
+		fmt.Printf("Job configuration file does not define any variables")
 		os.Exit(1)
 	}
 
@@ -101,7 +108,7 @@ func main() {
 
 	// Ensure the job file directory exists.
 	if err := os.MkdirAll(*jobFileDir, 0755); err != nil {
-		fmt.Printf("Error creating jeb file directory: %v\n", err)
+		fmt.Printf("Error creating job file directory: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -112,7 +119,7 @@ func main() {
 	}
 
 	// Generate the code
-	code, err := GenerateCode(commonJobConfig, userSchema, packageName)
+	code, err := GenerateCode(commonJobConfig, userSchema, *packageName)
 	if err != nil {
 		fmt.Printf("Error generating code: %v\n", err)
 		os.Exit(1)
@@ -289,7 +296,7 @@ func GenerateCode(commonJobConfig *CommonJobConfig, userSchema *JobConfig, packa
 	GenerateConfigStruct(&fileBuilder, commonJobConfig, userSchema)
 
 	// Generate CredentialsPayload struct
-	GeenrateCredentialsPayloadStruct(&fileBuilder, commonJobConfig, userSchema)
+	GenerateCredentialsPayloadStruct(&fileBuilder, commonJobConfig, userSchema)
 
 	// Generate ConfigFromEnv function
 	GenerateConfigFromEnv(&fileBuilder, commonJobConfig, userSchema)
@@ -349,10 +356,11 @@ func GenerateConfigStruct(fileBuilder *strings.Builder, commonJobConfig *CommonJ
 	fileBuilder.WriteString("}\n")
 }
 
-func GeenrateCredentialsPayloadStruct(fileBuilder *strings.Builder, commonJobConfig *CommonJobConfig, userSchema *JobConfig) {
+func GenerateCredentialsPayloadStruct(fileBuilder *strings.Builder, commonJobConfig *CommonJobConfig, userSchema *JobConfig) {
 	// Generate the CredentialsPayload struct for SMOUT_ variables from the user schema.
 	fileBuilder.WriteString("// CredentialsPayload contains fields for SMOUT_ environment variables\n")
 	fileBuilder.WriteString("type CredentialsPayload struct {\n")
+	requiredOutputVariableFound := false
 	for _, envVar := range userSchema.JobEnvVariables {
 		if strings.HasPrefix(envVar.Name, "SMOUT_") {
 			// Field name: remove the "SMOUT_" prefix.
@@ -371,6 +379,7 @@ func GeenrateCredentialsPayloadStruct(fileBuilder *strings.Builder, commonJobCon
 			if reqVal, ok := validations["required"]; ok {
 				if reqVal == "true" {
 					isRequired = true
+					requiredOutputVariableFound = true
 				}
 			}
 			goType := mapType(attrType)
@@ -391,7 +400,10 @@ func GeenrateCredentialsPayloadStruct(fileBuilder *strings.Builder, commonJobCon
 			}
 		}
 	}
-
+	if requiredOutputVariableFound == false {
+		fmt.Printf("Job configuration file must define at least one required output variable")
+		os.Exit(1)
+	}
 	fileBuilder.WriteString("}\n\n")
 }
 

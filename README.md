@@ -72,7 +72,7 @@ The credentials provider job authenticates with Secrets Manager using an IBM Clo
   * **Note:** Once a configuration is created with this method, it cannot be updated to use a different authentication method.
 
 * **Trusted Profile**:<br>
-  Alternatively, configure a **Trusted Profile** for authentication. Refer to the [IBM Cloud Code Engine documentation](https://cloud.ibm.com/docs/codeengine?topic=codeengine-getting-started&q=trusted+profile&tags=codeengine) for setup details.
+  Alternatively, configure a **Trusted Profile** for authentication. Refer to the [IBM Cloud Code Engine documentation](https://cloud.ibm.com/docs/codeengine?topic=codeengine-trusted-profiles&interface=ui) for setup details.
 
 ### Security Considerations
 
