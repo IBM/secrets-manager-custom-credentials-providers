@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -23,6 +24,12 @@ type JobConfig struct {
 // CommonJobConfig represents the common job configuration.
 type CommonJobConfig struct {
 	CommonEnvVariables []JobEnvVariable `json:"common_env_variables"`
+}
+
+// ValidationError represents an error during validation
+type ValidationError struct {
+	VariableName string
+	Message      string
 }
 
 // Built-in job configuration.
@@ -99,6 +106,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Validate the user input job configuration
+	if errors := validateJobConfig(userSchema); len(errors) > 0 {
+		fmt.Printf("Invalid job configuration. Found %d validation errors:\n", len(errors))
+		for i, err := range errors {
+			fmt.Printf("%d. Variable '%s': %s\n", i+1, err.VariableName, err.Message)
+		}
+		os.Exit(1)
+	}
+
 	// Parse the built-in common job configuration.
 	var commonJobConfig *CommonJobConfig
 	if err := json.Unmarshal([]byte(builtinJobConfig), &commonJobConfig); err != nil {
@@ -133,6 +149,111 @@ func main() {
 	}
 
 	fmt.Println("Code generated successfully.")
+}
+
+// validateJobConfig validates the user input job configuration according to the specified rules
+func validateJobConfig(jobConfig *JobConfig) []ValidationError {
+	var errors []ValidationError
+
+	// Regex for valid variable names
+	namePattern := regexp.MustCompile(`^(SMIN_|SMOUT_)[A-Z0-9_]+$`)
+
+	// Valid types
+	validTypes := map[string]bool{
+		"string":    true,
+		"integer":   true,
+		"boolean":   true,
+		"secret_id": true,
+	}
+
+	// Validate each variable
+	for _, envVar := range jobConfig.JobEnvVariables {
+		name := envVar.Name
+		value := envVar.Value
+
+		// Check prefix
+		if !strings.HasPrefix(name, "SMIN_") && !strings.HasPrefix(name, "SMOUT_") {
+			errors = append(errors, ValidationError{
+				VariableName: name,
+				Message:      "Variable name must start with 'SMIN_' or 'SMOUT_'",
+			})
+		}
+
+		// Check variable name format (no lowercase, no spaces)
+		if !namePattern.MatchString(name) {
+			errors = append(errors, ValidationError{
+				VariableName: name,
+				Message:      "Variable name should only contain uppercase letters, numbers, and underscores",
+			})
+		}
+
+		// Validate value attributes
+		attrType, validations, err := parseAttributes(value)
+		if err != nil {
+			errors = append(errors, ValidationError{
+				VariableName: name,
+				Message:      fmt.Sprintf("Invalid attribute format: %v", err),
+			})
+			continue
+		}
+
+		// Check if type is specified
+		if attrType == "" {
+			errors = append(errors, ValidationError{
+				VariableName: name,
+				Message:      "Variable value must specify a 'type' attribute",
+			})
+		}
+
+		// Check if type is valid
+		if !validTypes[attrType] && !strings.HasPrefix(attrType, "enum[") {
+			errors = append(errors, ValidationError{
+				VariableName: name,
+				Message:      fmt.Sprintf("Invalid type '%s'. Must be one of: string, integer, boolean, secret_id, or enum[options]", attrType),
+			})
+		}
+
+		// Check enum format
+		if strings.HasPrefix(attrType, "enum[") {
+			if !strings.HasSuffix(attrType, "]") || len(attrType) <= 6 {
+				errors = append(errors, ValidationError{
+					VariableName: name,
+					Message:      "Invalid enum format. Must be in format 'enum[optionA|optionB|...]'",
+				})
+			} else {
+				// Check if enum options are properly formatted
+				options := attrType[5 : len(attrType)-1] // Remove 'enum[' prefix and ']' suffix
+				if options == "" || !strings.Contains(options, "|") {
+					errors = append(errors, ValidationError{
+						VariableName: name,
+						Message:      "Enum must have at least two options separated by '|'",
+					})
+				}
+			}
+		}
+
+		// Check if 'required' attribute value is valid
+		if reqVal, ok := validations["required"]; ok {
+			if reqVal != "true" && reqVal != "false" {
+				errors = append(errors, ValidationError{
+					VariableName: name,
+					Message:      "Required attribute must be 'true' or 'false'",
+				})
+			}
+		}
+
+		// Check if there are invalid attributes
+		for key := range validations {
+			if key != "required" {
+				errors = append(errors, ValidationError{
+					VariableName: name,
+					Message:      fmt.Sprintf("Invalid attribute '%s'. Only 'type' and 'required' attributes are accepted", key),
+				})
+			}
+		}
+	}
+
+	return errors
 }
 
 func GenerateMustGetEnvVar(fileBuilder *strings.Builder) {
@@ -609,31 +730,48 @@ func GetValueByPath(data map[string]interface{}, path string) (interface{}, bool
 }
 
 // parseAttributes extracts the type and validation rules from an attribute string
-func parseAttributes(attrStr string) (string, map[string]string, error) {
-	// Default to string type if not specified
-	attrType := "string"
+func parseAttributes(value string) (string, map[string]string, error) {
+	// Initialize empty map for validation attributes
 	validations := make(map[string]string)
 
-	// Split the attribute string into parts
-	parts := strings.Split(attrStr, ",")
+	// Initialize empty string for type
+	var attrType string
 
-	// First part is the type
-	if len(parts) > 0 && parts[0] != "" {
-		attrType = strings.TrimSpace(parts[0])
-	}
+	// Trim whitespace
+	value = strings.TrimSpace(value)
 
-	attrType = strings.TrimPrefix(attrType, "type:")
+	// Split by comma to get individual attributes
+	attributes := strings.Split(value, ",")
 
-	// Remaining parts are validations in key=value format
-	for i := 1; i < len(parts); i++ {
-		part := strings.TrimSpace(parts[i])
-		kv := strings.SplitN(part, ":", 2)
-		if len(kv) != 2 {
-			continue
+	for _, attr := range attributes {
+		// Trim whitespace from each attribute
+		attr = strings.TrimSpace(attr)
+
+		// Skip empty attributes
+		if attr == "" {
+			return "", nil, fmt.Errorf("attribute cannot be empty")
 		}
-		key := strings.TrimSpace(kv[0])
-		val := strings.TrimSpace(kv[1])
-		validations[key] = val
+
+		// Split attribute into key and value
+		parts := strings.SplitN(attr, ":", 2)
+		if len(parts) != 2 {
+			return "", nil, fmt.Errorf("attribute must be in 'key:value' format")
+		}
+
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
+
+		// Check for empty key or value
+		if key == "" || val == "" {
+			return "", nil, fmt.Errorf("attribute key and value cannot be empty")
+		}
+
+		// Handle the attributes based on key
+		if key == "type" {
+			attrType = val
+		} else {
+			validations[key] = val
+		}
 	}
 
 	return attrType, validations, nil
