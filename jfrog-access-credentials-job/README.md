@@ -44,7 +44,7 @@ The job custom environment variables are defined in: [job_config.json](./job_con
 | Environment Variable | Description |
 |---------------------|-------------|
 | `SMIN_LOGIN_SECRET_ID` | User Credentials secret ID containing the login credentials to the JFrog platform |
-| `SMIN_JFROG_BASE_URL_VALUE` | Your JFrog platform base URL |
+| `SMIN_JFROG_BASE_URL` | Your JFrog platform base URL |
 
 ##### Optional Parameters
 
