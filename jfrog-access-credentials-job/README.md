@@ -37,32 +37,54 @@ The service environment variables that are passed by Secrets Manager to the job:
 
 #### Job Custom Parameters
 
-| Environment Variable | Description | Default Value |
-|---------------------|-------------|---------------|
-| `SMIN_LOGIN_SECRET_ID` | Service Credentials secret ID containing the login credentials to the PostgreSQL database  | (required) |
-| `SMIN_SCHEMA_NAME` | PostgreSQL schema to grant read access | `public` |
+The job custom environment variables are defined in: [job_config.json](./job_config.json)
+
+##### Required Parameters
+
+| Environment Variable | Description |
+|---------------------|-------------|
+| `SMIN_LOGIN_SECRET_ID` | User Credentials secret ID containing the login credentials to the JFrog platform |
+| `SMIN_JFROG_BASE_URL_VALUE` | Your JFrog platform base URL |
+
+##### Optional Parameters
+
+| Environment Variable           | Description                                                                                                                                                                                                                                                                                                              | Default Value                       |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| `SMIN_GRANT_TYPE`              | The grant type used to authenticate the request. In this case, the only value supported is "client_credentials" which is also the default value if this parameter is not specified.                                                                                                                                      | `client_credentials`                |
+| `SMIN_USERNAME`                | The user name for which this token is created. The username is based on the authenticated user - either from the user of the authenticated token or based on the username (if basic auth was used). The username is then used to set the subject of the token: <service-id>/users/<username>. Limited to 255 characters. | `subject` from authentication token |
+| `SMIN_SCOPE`                   | The scope of access that the token provides.                                                                                                                                                                                                                                                                             | `applied-permissions/user`          |
+| `SMIN_EXPIRES_IN_SECONDS`      | The amount of time, in seconds, it would take for the token to expire. An admin shall be able to set whether expiry is mandatory, what is the default expiry, and what is the maximum expiry allowed. Must be non-negative.                                                                                              | `90 days`                           |
+| `SMIN_REFRESHABLE`             | The token is not refreshable by default.                                                                                                                                                                                                                                                                                 | `false`                             |
+| `SMIN_DESCRIPTION`             | Free text token description. Useful for filtering and managing tokens. Limited to 1024 characters.                                                                                                                                                                                                                       | `empty`                             |
+| `SMIN_AUDIENCE`                | A space-separated list of the other instances or services that should accept this token identified by their Service-IDs. Limited to 255 characters.                                                                                                                                                                      | `*@*`                               |
+| `SMIN_INCLUDE_REFERENCE_TOKEN` | Generate a Reference Token (alias to Access Token) in addition to the full token (available from Artifactory 7.38.10).                                                                                                                                                                                                   | `false`                             |
 
 #### Output Values
 
 The job produces these values that are stored in Secrets Manager:
 
-| Environment Variable | Description |
-|---------------------|-------------|
-| `SMOUT_USERNAME` | Dynamically generated PostgreSQL role name |
-| `SMOUT_PASSWORD` | Securely generated random password |
-| `SMOUT_COMPOSED` | A fully composed PostgreSQL connection string with the generated credentials |
-| `SMOUT_CERTIFICATE_BASE64` | Base64-encoded TLS certificate for secure connection |
+| Environment Variable | Description                           |
+|---------------------|---------------------------------------|
+| `SMOUT_ACCESS_TOKEN` | Generated JFrog Platform Access Token |
 
 ## Security Features
 
-* **Dynamic Credentials**: Credentials are dynamically generated with minimal privileges and are automatically deleted after use.
-* **Least Privilege**: Grants read-only access to a specific schema.
-* **Secure Password Generation**:
-   * 64-character, randomly generated password.
-   * Uses a cryptographically secure random generator.
-   * Contains a mix of uppercase, lowercase, numbers, and special characters.
-* **Transactional Role Management**: Uses database transactions to ensure atomic role creation and privilege assignment.
-* **Secured Connection**: Supports secure TLS connections with custom certificates.
+TODO
+[//]: # (* **Dynamic Credentials**: Credentials are dynamically generated with minimal privileges and are automatically deleted after use.)
+
+[//]: # (* **Least Privilege**: Grants read-only access to a specific schema.)
+
+[//]: # (* **Secure Password Generation**:)
+
+[//]: # (   * 64-character, randomly generated password.)
+
+[//]: # (   * Uses a cryptographically secure random generator.)
+
+[//]: # (   * Contains a mix of uppercase, lowercase, numbers, and special characters.)
+
+[//]: # (* **Transactional Role Management**: Uses database transactions to ensure atomic role creation and privilege assignment.)
+
+[//]: # (* **Secured Connection**: Supports secure TLS connections with custom certificates.)
 
 ## Development
 
@@ -96,11 +118,11 @@ go build -o postgres-credentials-provider ./cmd
 1. **Initialization**: Reads configuration from environment variables.
 2. **Login Credentials Retrieval**: Retrieves PostgreSQL login connection details from Secrets Manager Service Credentials secret.
 3. **Role Generation**:
-   * Creates a new PostgreSQL role with a unique name.
-   * Generates a secure random password.
+    * Creates a new PostgreSQL role with a unique name.
+    * Generates a secure random password.
 4. **Privilege Assignment**:
-   * Grants USAGE on the specified schema.
-   * Grants SELECT permissions on all current tables in the schema.
+    * Grants USAGE on the specified schema.
+    * Grants SELECT permissions on all current tables in the schema.
 5. **Output**: Provides new credentials back to Secrets Manager.
 
 ## Usage with IBM Cloud Secrets Manager
@@ -111,12 +133,12 @@ go build -o postgres-credentials-provider ./cmd
 
 * GO development environment
 * Command line tools:
-   * psql
-   * ./jq
+    * psql
+    * ./jq
 * IBM Cloud CLI with:
-   * Code Engine CLI Plugin
-   * Cloud Databases CLI Plugin
-   * Secrets Manager CLI Plugin
+    * Code Engine CLI Plugin
+    * Cloud Databases CLI Plugin
+    * Secrets Manager CLI Plugin
 * An IBM Cloud Databases for PostgreSQL instance
 * An IBM Cloud Secrets Manager instance
 
