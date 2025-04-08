@@ -11,9 +11,9 @@ IBM Cloud Secrets Manager service now supports generating **custom credentials**
 
 A **credentials provider** is an IBM Cloud Code Engine Job that implements a Secrets Manager interface. It is typically designed to create and delete credentials for a third-party system.
 
-Secrets Manager triggers  **credentials provider** job runs and manage their asynchronous execution using secret **tasks**.
+Secrets Manager triggers  **credentials provider** job runs and manages their asynchronous execution through secret **tasks**.
 
-The  **credentials provider** model enables cloud developers to extend Secrets Manager by supporting additional secret types. Secrets Manager users can then create and manage custom credentials secrets alongside built-in service secrets, ensuring a consistent lifecycle management experience.
+The  **credentials provider** model enables cloud developers to extend Secrets Manager by supporting additional secret types. Secrets Manager users can then create and manage custom credentials alongside built-in service secrets, ensuring a consistent lifecycle management experience.
 
 ## Designing a new credentials provider Job
 
@@ -54,7 +54,7 @@ For reference, see the example [job_config.json](./example-certificate-provider-
 
 Consider which input variables should be tagged as `required:true`, requiring user input when creating a new secret. For optional input variables, define provider default values.
 
-Consider which output variables should be tagged as `required:true`, ensuring they are always included in the credentials returned to Secrets Manager. At least one required output variable must be defined.
+Mark output variables as `required:true` if they must always be included in the credentials returned to Secrets Manager. Every credentials provider must define at least one required output variable so that Secrets Manager can return usable credentials to the user.
 
 Clearly document your credentials provider’s default values to ensure visibility for other users utilizing your credentials provider.
 
@@ -69,23 +69,27 @@ The credentials provider job authenticates with Secrets Manager using an IBM Clo
 * **IAM Credentials Secret (Recommended)**:<br>
   Store the API key as an IAM Credentials secret in Secrets Manager. When configuring the custom credentials engine, Secrets Manager injects the API key into the Code Engine Job as a secret with the key **SM_ACCESS_APIKEY**.
   * This method ensures Secrets Manager automatically rotates the API key and assigns a fresh key for each job run.
-  * **Note:** Once a configuration is created with this method, it cannot be updated to use a different authentication method.
+  * **Note:** Once a configuration is created using a reference to an IAM Credentials secret, it cannot be modified later.
 
 * **Trusted Profile**:<br>
   Alternatively, configure a **Trusted Profile** for authentication. Refer to the [IBM Cloud Code Engine documentation](https://cloud.ibm.com/docs/codeengine?topic=codeengine-trusted-profiles&interface=ui) for setup details.
 
 ### Security Considerations
 
-To enhance security in production environments:
+To enhance security:
 
 * **Principle of least privilege:**<br>
   Restrict job access to only the necessary secrets by using a dedicated secret group.
 * **IAM roles:**<br>
   Assign the API key used by the job to authenticate with Secrets Manager the `SecretTaskUpdater` role. If the job needs to read secrets, also assign the `SecretsReader` role. Both roles should be scoped to the dedicated secret group.
-* **Avoiding Personally Identifiable Information (PII)**<br>
-  Do not use personal identifiers (e.g., email addresses, social security numbers) as credential IDs. Secrets Manager treats the credential ID as metadata, not sensitive secret data.
+* **Avoiding Personally Identifiable Information (PII) and confidential data**<br>
+  Do not use personal identifiers (e.g., email addresses, social security numbers) or confidential data as input parameters and as credential IDs. Secrets Manager treats the input parameters and credential ID as metadata, not as sensitive secret data.
 
-## Credentials Provide Job flow
+### Error handling
+
+If the credentials provider job is unable to create or delete the credentials it should update Secrets Manager with an application error code and a user facing error message. This error will be displayed in the Secrets Manager UI for the failed task and should allow the user to apply a corrective action.
+
+## Credentials Provider Job Flow
 
 A typical job flow involves implementing the following actions:
 
