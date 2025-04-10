@@ -7,7 +7,6 @@ require (
 	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.10
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/joho/godotenv v1.5.1
 )
 
 replace github.com/IBM/secrets-manager-go-sdk/v2 => ./secrets-manager-go-sdk

@@ -20,26 +20,27 @@ import (
 // Config holds all configuration settings
 type Config struct {
 	// Common fields
-	SM_ACCESS_APIKEY string
-	SM_INSTANCE_URL string
-	SM_SECRET_GROUP_ID string
-	SM_SECRET_NAME string
-	SM_SECRET_TASK_ID string
-	SM_CREDENTIALS_ID string
+	SM_ACCESS_APIKEY     string
+	SM_INSTANCE_URL      string
+	SM_SECRET_GROUP_ID   string
+	SM_SECRET_NAME       string
+	SM_SECRET_TASK_ID    string
+	SM_CREDENTIALS_ID    string
 	SM_SECRET_VERSION_ID string
-	SM_SECRET_ID string
-	SM_ACTION string
+	SM_SECRET_ID         string
+	SM_ACTION            string
 
 	// User fields
-	SM_SCHEMA_NAME string // From env: SMIN_SCHEMA_NAME
+	SM_SCHEMA_NAME     string // From env: SMIN_SCHEMA_NAME
 	SM_LOGIN_SECRET_ID string // From env: SMIN_LOGIN_SECRET_ID
 }
+
 // CredentialsPayload contains fields for SMOUT_ environment variables
 type CredentialsPayload struct {
 	CERTIFICATE_BASE64 string `json:"certificate_base64" validate:"required,max=100000"`
-	COMPOSED string `json:"composed" validate:"required,max=100000"`
-	PASSWORD string `json:"password" validate:"required,max=100000"`
-	USERNAME string `json:"username" validate:"required,max=100000"`
+	COMPOSED           string `json:"composed" validate:"required,max=100000"`
+	PASSWORD           string `json:"password" validate:"required,max=100000"`
+	USERNAME           string `json:"username" validate:"required,max=100000"`
 }
 
 // ConfigFromEnv creates a Config from environment variables and validates it
@@ -110,7 +111,7 @@ func ConfigFromEnv() (Config, error) {
 	// Process user variables
 	// Process SM_SCHEMA_NAME as string
 	value = GetEnvVar("SM_SCHEMA_NAME_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -130,7 +131,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_LOGIN_SECRET_ID as secret_id
 	value = GetEnvVar("SM_LOGIN_SECRET_ID_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := true
@@ -265,7 +266,7 @@ func UpdateTaskAboutCredentialsCreated(client SecretsManagerClient, config *Conf
 		return nil, fmt.Errorf("cannot construct a custom credentials resource: %w", err)
 	}
 
-	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskCreated{
+	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskCredentialsCreated{
 		Status:      core.StringPtr(sm.SecretTask_Status_CredentialsCreated),
 		Credentials: customCredentials,
 	}
@@ -275,7 +276,7 @@ func UpdateTaskAboutCredentialsCreated(client SecretsManagerClient, config *Conf
 
 // UpdateTaskAboutCredentialsDeleted updates a task status to succeeded when credentials are deleted.
 func UpdateTaskAboutCredentialsDeleted(client SecretsManagerClient, config *Config) (result *sm.SecretTask, err error) {
-	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskDeleted{
+	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskCredentialsDeleted{
 		Status: core.StringPtr(sm.SecretTask_Status_CredentialsDeleted),
 	}
 	return UpdateTask(client, config, secretTaskPrototype)
@@ -322,7 +323,7 @@ func UpdateTask(client SecretsManagerClient, config *Config, secretTaskPrototype
 
 	return result, nil
 }
-	
+
 // ValidatedStructToMap converts a struct to a map[string]interface{} while performing validation
 // according to the struct's validation tags
 func ValidatedStructToMap(input any) (map[string]interface{}, error) {
@@ -349,7 +350,7 @@ func ValidatedStructToMap(input any) (map[string]interface{}, error) {
 
 	return result, nil
 }
-	
+
 func GetValueByPath(data map[string]interface{}, path string) (interface{}, bool) {
 	segments := strings.Split(path, "/")
 

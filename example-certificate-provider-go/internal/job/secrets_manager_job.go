@@ -369,7 +369,7 @@ func UpdateTaskAboutCredentialsCreated(client SecretsManagerClient, config *Conf
 		return nil, fmt.Errorf("cannot construct a custom credentials resource: %w", err)
 	}
 
-	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskCreated{
+	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskCredentialsCreated{
 		Status:      core.StringPtr(sm.SecretTask_Status_CredentialsCreated),
 		Credentials: customCredentials,
 	}
@@ -379,7 +379,7 @@ func UpdateTaskAboutCredentialsCreated(client SecretsManagerClient, config *Conf
 
 // UpdateTaskAboutCredentialsDeleted updates a task status to succeeded when credentials are deleted.
 func UpdateTaskAboutCredentialsDeleted(client SecretsManagerClient, config *Config) (result *sm.SecretTask, err error) {
-	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskDeleted{
+	secretTaskPrototype := &sm.SecretTaskPrototypeUpdateSecretTaskCredentialsDeleted{
 		Status: core.StringPtr(sm.SecretTask_Status_CredentialsDeleted),
 	}
 	return UpdateTask(client, config, secretTaskPrototype)

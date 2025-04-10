@@ -1,7 +1,7 @@
 package job
 
 import (
-	"certificate-provider/internal/job/utils"
+	"certificate-provider/internal/utils"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"

@@ -4,14 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	sm "github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
-	resty "github.com/go-resty/resty/v2"
-	"jfrog-access-token-provider-go/internal/job/utils"
+	"jfrog-access-token-provider-go/internal/utils"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	sm "github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
+	resty "github.com/go-resty/resty/v2"
 )
 
 const (

@@ -2,7 +2,7 @@ package job
 
 import (
 	"bytes"
-	"certificate-provider/internal/job/utils"
+	"certificate-provider/internal/utils"
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
