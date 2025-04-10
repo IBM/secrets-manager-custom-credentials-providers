@@ -1,0 +1,48 @@
+{
+    "job_env_variables": [
+        {
+            "name": "SMIN_GRANT_TYPE",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_USERNAME",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_SCOPE",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_EXPIRES_IN_SECONDS",
+            "value": "type:integer, required:false"
+        },
+        {
+            "name": "SMIN_REFRESHABLE",
+            "value": "type:boolean, required:false"
+        },
+        {
+            "name": "SMIN_DESCRIPTION",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_AUDIENCE",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_INCLUDE_REFERENCE_TOKEN",
+            "value": "type:boolean, required:false"
+        },
+        {
+            "name": "SMIN_LOGIN_SECRET_ID",
+            "value": "type:secret_id, required:true"
+        },
+        {
+            "name": "SMIN_JFROG_BASE_URL",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_ACCESS_TOKEN",
+            "value": "type:string, required:true"
+        }
+    ]
+}

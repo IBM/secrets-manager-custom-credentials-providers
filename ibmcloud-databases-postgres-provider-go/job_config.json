@@ -1,0 +1,28 @@
+{
+    "job_env_variables": [
+        {
+            "name": "SMIN_SCHEMA_NAME",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_LOGIN_SECRET_ID",
+            "value": "type:secret_id, required:true"
+        },
+        {
+            "name": "SMOUT_CERTIFICATE_BASE64",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_COMPOSED",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_PASSWORD",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_USERNAME",
+            "value": "type:string, required:true"
+        }
+    ]
+}
