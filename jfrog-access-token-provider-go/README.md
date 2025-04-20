@@ -24,15 +24,15 @@ The job uses service and custom environment variables for configuration, which a
 
 The service environment variables that are passed by Secrets Manager to the job:
 
-| Environment Variable | Description |
-|---------------------|-------------|
-| `SM_ACTION` | Specifies whether to create or delete credentials (`create_credentials` or `delete_credentials`) |
-| `SM_INSTANCE_URL` | The URL of the Secrets Manager instance |
-| `SM_SECRET_TASK_ID` | The ID of the task that the job run is currently operating on |
-| `SM_SECRET_ID` | The ID of the secret being processed |
-| `SM_SECRET_NAME` | The name of the secret being processed |
-| `SM_SECRET_GROUP_ID` | The ID of the Secrets Manager secret group that contains the secret |
-| `SM_CREDENTIALS_ID` | Provided only for the `delete_credentials` action. The credentials ID assigned at creation. |
+| Environment Variable   | Description                                                                                                               |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| `SM_ACTION`            | Specifies whether to create or delete credentials (`create_credentials` or `delete_credentials`)                          |
+| `SM_INSTANCE_URL`      | The URL of the Secrets Manager instance                                                                                   |
+| `SM_SECRET_TASK_ID`    | The ID of the task that the job run is currently operating on                                                             |
+| `SM_SECRET_ID`         | The ID of the secret being processed                                                                                      |
+| `SM_SECRET_NAME`       | The name of the secret being processed                                                                                    |
+| `SM_SECRET_GROUP_ID`   | The ID of the Secrets Manager secret group that contains the secret                                                       |
+| `SM_CREDENTIALS_ID`    | Provided only for the `delete_credentials` action. The credentials ID assigned at creation.                               |
 | `SM_SECRET_VERSION_ID` | Provided only for the `delete_credentials` action. The Secrets Manager secret version ID that the job run is operating on |
 
 #### Job Custom Parameters
@@ -41,35 +41,35 @@ The job custom environment variables are defined in: [job_config.json](./job_con
 
 ##### Required Parameters
 
-| Environment Variable | Description |
-|---------------------|-------------|
-| `SMIN_LOGIN_SECRET_ID` | User Credentials secret ID containing the login credentials to the JFrog platform |
-| `SMIN_JFROG_BASE_URL` | Your JFrog platform base URL |
+| Environment Variable   | Description                                                                          |
+|------------------------|--------------------------------------------------------------------------------------|
+| `SMIN_LOGIN_SECRET_ID` | User Credentials secret ID containing the login credentials to the JFrog platform    |
+| `SMIN_JFROG_BASE_URL`  | Your JFrog platform base URL. For example: http://<JFROG_PLATFORM_URL>:<ROUTER_PORT> |
 
 ##### Optional Parameters
 
-| Environment Variable           | Description                                                                                                                                                                                                                                                                                                                | Default Value                       |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
-| `SMIN_GRANT_TYPE`              | The grant type used to authenticate the request. In this case, the only value supported is "client_credentials" which is also the default value if this parameter is not specified.                                                                                                                                        | `client_credentials`                |
-| `SMIN_USERNAME`                | The user name for which this token is created. The username is based on the authenticated user - either from the user of the authenticated token or based on the username (if basic auth was used). The username is then used to set the subject of the token: `<service-id>/users/<username>`. Limited to 255 characters. | `subject` from authentication token |
-| `SMIN_SCOPE`                   | The scope of access that the token provides.                                                                                                                                                                                                                                                                               | `applied-permissions/user`          |
-| `SMIN_EXPIRES_IN_SECONDS`      | The amount of time, in seconds, it would take for the token to expire. An admin shall be able to set whether expiry is mandatory, what is the default expiry, and what is the maximum expiry allowed. Must be non-negative.                                                                                                | `90 days`                           |
-| `SMIN_REFRESHABLE`             | The token is not refreshable by default.                                                                                                                                                                                                                                                                                   | `false`                             |
-| `SMIN_DESCRIPTION`             | Free text token description. Useful for filtering and managing tokens. Limited to 1024 characters.                                                                                                                                                                                                                         | `""`                                |
-| `SMIN_AUDIENCE`                | A space-separated list of the other instances or services that should accept this token identified by their Service-IDs. Limited to 255 characters.                                                                                                                                                                        | `*@*`                               |
-| `SMIN_INCLUDE_REFERENCE_TOKEN` | Generate a Reference Token (alias to Access Token) in addition to the full token (available from Artifactory 7.38.10).                                                                                                                                                                                                     | `false`                             |
+| Environment Variable           | Description                                                                                                                                                                                                | Default Value                                                                |
+|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
+| `SMIN_USERNAME`                | The user name for which this token is created. Administrators can assign a token to any subject (user); non-admin users who create tokens can only assign tokens to themselves. Limited to 255 characters. | `subject` from authentication token or `username` from the basic credentials |
+| `SMIN_SCOPE`                   | The scope of access that the token provides. For more information and configuration options, see [Create a JFrog Scoped Token](https://jfrog.com/help/r/HmVki7GUNPbjnGgpFbjGmw/l2UYqIBsb1aZ3I4nhXIYgA).    | `applied-permissions/user`                                                   |
+| `SMIN_EXPIRES_IN_SECONDS`      | The amount of time, in seconds, it would take for the token to expire. Must be non-negative.                                                                                                               | `7776000 (90 days)`                                                          |
+| `SMIN_REFRESHABLE`             | The token is not refreshable by default.                                                                                                                                                                   | `false`                                                                      |
+| `SMIN_DESCRIPTION`             | Free text token description. Useful for filtering and managing tokens. Limited to 1024 characters.                                                                                                         | `""`                                                                         |
+| `SMIN_AUDIENCE`                | A space-separated list of the other instances or services that should accept this token identified by their Service-IDs. Limited to 255 characters.                                                        | `*@*`                                                                        |
+| `SMIN_INCLUDE_REFERENCE_TOKEN` | Generate a Reference Token (alias to Access Token) in addition to the full token (available from Artifactory 7.38.10).                                                                                     | `false`                                                                      |
 
 #### Output Values
 
 The job produces these values that are stored in Secrets Manager:
 
-| Environment Variable | Description                           |
-|---------------------|---------------------------------------|
-| `SMOUT_ACCESS_TOKEN` | Generated JFrog Platform Access Token |
+| Environment Variable | Description                            |
+|----------------------|----------------------------------------|
+| `SMOUT_ACCESS_TOKEN` | Generated JFrog Platform Access Token. |
 
 ## Security Features
 
 TODO
+
 [//]: # (* **Dynamic Credentials**: Credentials are dynamically generated with minimal privileges and are automatically deleted after use.)
 
 [//]: # (* **Least Privilege**: Grants read-only access to a specific schema.)
@@ -91,12 +91,12 @@ TODO
 ### Project Structure
 
 ```
-postgres-credentials-provider/
+jfrog-access-token-provider-go/
 ├── cmd/
 │   └── main.go                 - Entry point for the application
 ├── internal/
 │   ├── job/
-│   │   └── postgres_custom_credentials.go - Implements PostgreSQL credential management
+│   │   └── credentials_provider.go - Implements JFrog Access token management
 │   │   └── secrets_manager_job.go  - Handles integration with IBM Cloud Secrets Manager
 │   └── utils/
 │       └── logger.go           - Provides logging functionality
@@ -106,24 +106,25 @@ postgres-credentials-provider/
 ### Building and Testing
 
 ```bash
+# Clone the secrets-manager-custom-credentials-providers repository to your local machine
+git clone https://github.com/IBM/secrets-manager-custom-credentials-providers
+
+# navigate to the provider directory
+cd jfrog-access-token-provider-go
+
 # Run test
 go test ./internal/job
 
 # Build the job binary
-go build -o postgres-credentials-provider ./cmd
+go build -o jfrog-access-token-provider ./cmd
 ```
 
 ### How It Works
 
 1. **Initialization**: Reads configuration from environment variables.
-2. **Login Credentials Retrieval**: Retrieves PostgreSQL login connection details from Secrets Manager Service Credentials secret.
-3. **Role Generation**:
-    * Creates a new PostgreSQL role with a unique name.
-    * Generates a secure random password.
-4. **Privilege Assignment**:
-    * Grants USAGE on the specified schema.
-    * Grants SELECT permissions on all current tables in the schema.
-5. **Output**: Provides new credentials back to Secrets Manager.
+2. **Login Credentials Retrieval**: Retrieves JFrog platform's login credentials from a Secrets Manager User Credentials secret.
+3. **Credentials Generation**: Creates a new JFrog access token.
+4. **Output**: Provides new credentials back to Secrets Manager.
 
 ## Usage with IBM Cloud Secrets Manager
 
@@ -132,38 +133,25 @@ go build -o postgres-credentials-provider ./cmd
 ### Prerequisites
 
 * GO development environment
-* Command line tools:
-    * psql
-    * ./jq
 * IBM Cloud CLI with:
     * Code Engine CLI Plugin
-    * Cloud Databases CLI Plugin
     * Secrets Manager CLI Plugin
-* An IBM Cloud Databases for PostgreSQL instance
+* A JFrog user account with:
+    * Admin privileges if the token will be generated for other users.
+    * Creation of tokens enabled in the JFrog Platform UI if using basic authentication. You cannot create token by using basic credentials if you enabled multi-factor authentication. For more information, see [Enable Token Generation via API](https://jfrog.com/help/access?ft:clusterId=UUID-7bc85ed9-8ecf-6b8c-3c49-9c6999b53ab1)
+* Valid JFrog platform credentials - a Bearer token or Basic Authentication credentials.
 * An IBM Cloud Secrets Manager instance
-
 
 ### Step-by-Step Setup
 
-#### 1. Clone the Repositories
-
-```bash
-# Clone this repository to your local machine
-git clone https://github.ibm.com/ARIES/postgres-credentials-provider.git
-
-# Clone the secrets-manager-job-tools repository 
-git clone https://github.com/ARIES/secrets-manager-job-tools.git
-```
-
-**For ease of use, this example assumes that both repositories are cloned into a common parent directory.**
-
-#### 2. Create a Code Engine Project
+#### 1. Create a Code Engine Project
 
 ```bash
 # Set variables
 REGION=us-south
 RESOURCE_GROUP=Default
-PROJECT_NAME=postgres-credentials-provider
+CE_PROJECT_NAME=jfrog-access-token-provider
+CE_JOB_NAME=jfrog-access-token-provider-job
 
 # Login to your IBM Cloud account
 ibmcloud login [--sso]
@@ -172,86 +160,101 @@ ibmcloud login [--sso]
 ibmcloud target -r $REGION -g $RESOURCE_GROUP
 
 # Create a Code Engine project
-ibmcloud ce project create --name $PROJECT_NAME
+ibmcloud ce project create --name $CE_PROJECT_NAME
 
 # Get the Code Engine project
-ibmcloud ce project get --name $PROJECT_NAME
+ibmcloud ce project get --name $CE_PROJECT_NAME
 
 # Capture the project ID and CRN
 CE_PROJECT_ID=<project_id>
 CE_PROJECT_CRN=<project_crn>
 
 # Select the project
-ibmcloud ce project select --name $PROJECT_NAME
+ibmcloud ce project select --name $CE_PROJECT_NAME
 ```
 
-#### 3. Create the Job in Code Engine from Local Source Code
+#### 2. Create the Job in Code Engine from Local Source Code
 
-Use the [**job-deployer**](../readme.md#using-the-job-deployer-tool) tool to create and deploy the job
+Use the [**job-deployer**](../tools/README.md#using-the-job-deployer-tool) tool to create and deploy the job
 
 ```bash
 # Make the script executable by running:
-chmod +x ../secrets-manager-job-tools/job-deployer.sh
-```
-
-```bash
-# Set job name
-CE_JOB_NAME=postgres-credentials-provider-job
+chmod +x ../tools/job-deployer.sh
 
 # Create a job from local source code
-../secrets-manager-job-tools/job-deployer.sh --jobdir . --name $CE_JOB_NAME --action create
+../tools/job-deployer.sh --jobdir . --name $CE_JOB_NAME --action create
 
 # Review the command and execute it. This command can take few minutes to complete
-ibmcloud ce job create --name postgres-credentials-provider-job 
-  --build-source . 
+ibmcloud ce job create --name jfrog-access-token-job 
+  --build-source .
   --build-dockerfile Dockerfile 
-  --env SMIN_SCHEMA_NAME="type:string, required:false" 
+  --env SMIN_USERNAME="type:string, required:false" 
+  --env SMIN_SCOPE="type:string, required:false" 
+  --env SMIN_EXPIRES_IN_SECONDS="type:integer, required:false" 
+  --env SMIN_REFRESHABLE="type:boolean, required:false" 
+  --env SMIN_DESCRIPTION="type:string, required:false" 
+  --env SMIN_AUDIENCE="type:string, required:false" 
+  --env SMIN_INCLUDE_REFERENCE_TOKEN="type:boolean, required:false" 
   --env SMIN_LOGIN_SECRET_ID="type:secret_id, required:true" 
-  --env SMOUT_CERTIFICATE_BASE64="type:string, required:true" 
-  --env SMOUT_COMPOSED="type:string, required:true" 
-  --env SMOUT_PASSWORD="type:string, required:true" 
-  --env SMOUT_USERNAME="type:string, required:true" 
+  --env SMIN_JFROG_BASE_URL="type:string, required:true" 
+  --env SMOUT_ACCESS_TOKEN="type:string, required:true" 
 
 Execute this command? (y/n): 
-
 ```
 
-#### 4. Create an IAM Service ID for Secrets Manager Integration
+This command will:
+
+* Upload your local source code to Code Engine
+* Use the specified Dockerfile to build an image and store it in IBM Cloud Container Registry
+* Create a job definition using the built image and using the environment variables defined in: [job_config.json](./job_config.json)
+
+#### 3. Create an IAM Service ID for Secrets Manager access
 
 ```bash
 # Create Service ID
-ibmcloud iam service-id-create postgres-credentials-provider-sid --description "Service ID for Secret Manager Postgres Credentials Provider"
+ibmcloud iam service-id-create jfrog-access-token-provider-sid --description "Service ID for Secret Manager JFrog Access Token provider"
 
-# Capture the ID of this Service ID from the GUID field
+# Capture the ID of this Service ID
 SERVICEID_ID=<serviceid_id>
 ```
 
-This Service ID will later be assigned with IAM **SecretTaskUpdater** and **SecretsReader** service policies scoped to the Secrets Manager instance Secret Group containing the certificate-provider secrets.
+This Service ID will later be assigned with IAM **SecretTaskUpdater** and **SecretsReader** service policies scoped to the Secrets Manager instance Secret Group containing the JFrog Access Token provider secrets.
 
-#### 5. Configure a Secrets Manager Secret Group
+#### 4. Configure a Secrets Manager Secret Group
 
 ```bash
-# Read your Secrest Manager instance configuration
-ibmcloud resource service-instance $SM_INSTANCE_NAME
+# Read your Secrets Manager instance configuration
+ibmcloud resource service-instance "<your-secrets-manager-instance-name>"
 
 # Capture the Secrets Manager instance ID
-SM_INSTANCE_ID=<instance_id>
+SM_INSTANCE_ID=<instance_guid>
 
 # Configure Secrets Manager CLI to use the Secrets Manager instance public endpoint
 ibmcloud secrets-manager config set service-url https://$SM_INSTANCE_ID.$REGION.secrets-manager.appdomain.cloud
 
-# Create a Secret Group to contain the postgres provider secrets
+# Create a Secret Group to contain the JFrog access token provider secrets
 ibmcloud secrets-manager secret-group-create \
-    --name postgres-credentials-provider-sg \
-    --description "Secret Group containing postgres credentials provider secrets"
+    --name jfrog-access-token-provider-sg \
+    --description "Secret Group containing JFrog Access Token provider secrets"
 
 # Capture the ID of this secret group
 SECRET_GROUP_ID=<secret_group_id>
 ```
 
-#### 6. Configure an IAM policy for the Secret Group
+#### 5. Configure IAM policies
 
-Create an IAM service ID policy assigning **SecretTaskUpdater** and **SecretsReader** roles scoped to the Secrets Manager instance Secret Group containing the postgres-credentials-provider secrets.
+Create an IAM authorization policy assigning **Viewer** and **Writer** roles to the Secrets Manager instance for the Code Engine project:
+
+```bash
+# Create authorization policy
+ibmcloud iam authorization-policy-create \
+    secrets-manager codeengine \
+    Viewer,Writer \
+    --source-service-instance-id $SM_INSTANCE_ID \
+    --target-service-instance-id $CE_PROJECT_ID
+```
+
+Create an IAM service ID policy assigning **SecretTaskUpdater** and **SecretsReader** roles scoped to the Secrets Manager instance Secret Group containing the JFrog Access Token provider secrets.
 
 ```bash
 # Create an IAM service ID policy
@@ -263,16 +266,16 @@ ibmcloud iam service-policy-create $SERVICEID_ID \
     --resource $SECRET_GROUP_ID
 ```
 
-#### 7. Configure an Secrets Manager IAM Credentials secret
+#### 6. Configure a Secrets Manager IAM Credentials secret
 
-Create an IAM Credentials secret for managing the IAM Service ID API key that the postgres-credentials-provider will use to authenticate back with Secrets Manager.
+Create an IAM Credentials secret for managing the IAM Service ID API key that the JFrog Access Token provider will use to authenticate back with Secrets Manager.
 
 ```bash
 # Create an IAM Credentials secret
 ibmcloud secrets-manager secret-create \
     --secret-type iam_credentials \
-    --secret-name postgres-credentials-provider-apikey \
-    --secret-description "Secret managing the apikey for the postgres-credentials-provider" \
+    --secret-name jfrog-access-token-provider-apikey \
+    --secret-description "Secret managing the apikey for the JFrog Access Token provider" \
     --secret-group-id $SECRET_GROUP_ID \
     --secret-ttl 90d \
     --iam-credentials-service-id $SERVICEID_ID \
@@ -287,74 +290,36 @@ ibmcloud secrets-manager secret-create \
 IAM_CREDENTIALS_SECRET_ID=<iam_credentials_secret_id>
 ```
 
-#### 8. Assign Service to Service authorization for PostgreSQL
+#### 7. Create a User Credentials secret
+
+Create a User Credentials secret managing the login credentials for the JFrog Platform.
 
 ```bash
-# Read your Databases for PostgreSQL instance configuration
-ibmcloud resource service-instance $PG_INSTANCE_NAME
+# Set variables
+JFROG_USERNAME=<your-JFrog-platform-username>
+JFROG_LOGIN-CREDENTIALS=<your-JFrog-platform-login-credentials> # Password for basic authentication or a Bearer token.
 
-# Capture the PostgreSQL instance ID and CRN
-PG_INSTANCE_ID=<instance_id>   
-PG_INSTANCE_CRN=<instance_crn> 
-```
-
-Create a service authorization policy assigning the **Key Manager** role to the Secrets Manager instance for the Databases for PostgreSQL instance.
-
-```bash
-ibmcloud iam authorization-policy-create \
-    secrets-manager databases-for-postgresql \
-    "Key Manager" \
-    --source-service-instance-id $SM_INSTANCE_ID \
-    --target-service-instance-id $PG_INSTANCE_ID
-```
-
-#### 9. Create a Service Credentials secret
-
-Create a Service Credentials secret managing the login credentials for the postgres-credentials-provider.
-
-```bash
 ibmcloud secrets-manager secret-create \
-    --secret-type service_credentials \
-    --secret-name postgres-credentials-provider-login \
-    --secret-description "Secret managing the login credentials for the postgres-credentials-provider" \
+    --secret-type username_password \
+    --secret-name jfrog-access-token-provider-login \
+    --secret-description "Secret managing the login credentials for the JFrog Access Token provider" \
     --secret-group-id $SECRET_GROUP_ID \
-    --secret-ttl 90d \
-    --secret-source-service "{
-      \"instance\": {
-            \"crn\": \"$PG_INSTANCE_CRN\"
-      }
-    }" \
-    --secret-rotation '{
-        "auto_rotate": true,
-        "interval": 60,
-        "unit": "day"
-    }'
+    --username-password-username $JFROG_USERNAME \
+    --username-password-password $JFROG_LOGIN-CREDENTIALS
 
 # Capture the ID of this secret
 LOGIN_SECRET_ID=<secret_id>
 ```
 
-#### 10. Assign Service to Service authorization for Code Engine
+#### 8. Create a Secrets Manager Custom Credentials configuration
 
-Create a service authorization policy assigning **Viewer** and **Writer** roles to the Secrets Manager instance for the Code Engine project.
-
-```bash
-ibmcloud iam authorization-policy-create \
-    secrets-manager codeengine \
-    Viewer,Writer \
-    --source-service-instance-id $SM_INSTANCE_ID \
-    --target-service-instance-id $CE_PROJECT_ID
-```
-
-#### 11. Create a Secrets Manager Custom Credentials configuration
-
-Create a Custom Credentials Configuration for the postgres-credentials-provider
+Create a Custom Credentials configuration for the JFrog Access Token provider.
 
 ```bash
-# Create a custom credetials configuration
+# Create a custom credentials configuration
 ibmcloud secrets-manager configuration-create \
     --config-type custom_credentials_configuration \
-    --name postgres-credentials-provider \
+    --name jfrog-access-token-provider \
     --custom-credentials-apikey-ref "$IAM_CREDENTIALS_SECRET_ID" \
     --configuration-task-timeout 10m \
     --custom-credentials-code-engine "{
@@ -364,19 +329,23 @@ ibmcloud secrets-manager configuration-create \
     }"
 ```
 
-#### 12. Create a Secrets Manager Custom Credentials secret
+#### 9. Create a Secrets Manager Custom Credentials secret
 
 ```bash
+# Set variables
+JFROG_PLATFORM_URL=<your-JFrog-platform-URL>
+JFROG_ROUTER_PORT=<JFrog-router-port>
+
 # Create a custom credentials secret
 ibmcloud secrets-manager secret-create \
   --secret-type custom_credentials \
-  --secret-configuration postgres-credentials-provider \
-  --secret-name example-pg-credentials \
-  --secret-description "Read-only credentials for $PG_INSTANCE_NAME database public schema" \
+  --secret-configuration jfrog-access-token-provider \
+  --secret-name example-jfrog-access-token \
+  --secret-description "JFrog Access Token" \
   --secret-group-id $SECRET_GROUP_ID \
   --secret-ttl 90d \
   --secret-parameters "{
-    \"schema_name\": \"public\",
+    \"jfrog_base_url\": \"http://$JFROG_PLATFORM_URL:$ROUTER_PORT\",
     \"login_secret_id\": \"$LOGIN_SECRET_ID\"
   }" \
   --secret-rotation '{
@@ -386,35 +355,41 @@ ibmcloud secrets-manager secret-create \
   }'
 
 # Capture the secret ID
-PG_SECRET_ID=<secret_id>
+JFROG_ACCESS_TOKEN_SECRET_ID=<secret_id>
 ```
 
-#### 13. Connect to your database
+#### 10. Test the JFrog Access Token
+TODO
 
-Connect to the database using the credentials from the custom credentials secret.
+
+### Troubleshooting
+
+If the secret did not become active, check the task status:
 
 ```bash
-# Download the postgres certificate
-ibmcloud secrets-manager secret --id $PG_SECRET_ID --output=JSON | \
-    jq -r '.credentials_content.certificate_base64' | \
-    base64 --decode > pg.crt
+# Retrieve the secret
+ibmcloud secrets-manager secret --id=$JFROG_ACCESS_TOKEN_SECRET_ID
 
-# Capture the composed connect string
-COMPOSED=$(ibmcloud secrets-manager secret --id $PG_SECRET_ID --output=JSON | \
-jq -r '.credentials_content.composed')
+# Capture the task ID
+TASK_ID=<processing_task_id>
 
-# Connect to the database
-psql "$COMPOSED&sslrootcert=pg.crt"
+# Check the Secret Task Status
+ibmcloud secrets-manager task --secret-id $JFROG_ACCESS_TOKEN_SECRET_ID --id $TASK_ID
 
-# Display current user
-SELECT SESSION_USER;
+# View Job Run Logs. Note: To observe job logs, modify the environment variable CE_REMOVE_COMPLETED_JOBS to a different value (e.g., 3d), then create a new secret.:
+ibmcloud ce jobrun logs -f -n $TASK_ID
 ```
 
 ## Limitations
 
-* Postgres credentials provider supports read-only access to a single schema.
-* Credentials generated by the Postgres credentials provider will not grant access to database tables added after their creation. To obtain credentials with access to the new tables, rotate the Custom Credentials secret.
+//TODO
+
+Maybe:
+* You cannot create token by using basic credentials if you enabled multi-factor authentication.
+* If you use basic credentials, you must enable creation of tokens in the JFrog Platform UI. For more information, see [Enable Token Generation via API.](https://jfrog.com/help/access?ft:clusterId=UUID-7bc85ed9-8ecf-6b8c-3c49-9c6999b53ab1).
+* For more information, see [JFrog Access Tokens docs](https://jfrog.com/help/r/jfrog-platform-administration-documentation/access-tokens)
 
 ## License
 
-This example is open-source using Apache License 2.0 and available for use and modification as needed.
+This provider is open-source using Apache License 2.0.
+
