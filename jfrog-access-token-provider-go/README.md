@@ -2,11 +2,6 @@
 
 This is an example Go application designed to run as an IBM Cloud Code Engine [job](https://cloud.ibm.com/docs/codeengine?topic=codeengine-job-plan) for IBM Cloud Secrets Manager [custom credentials](https://cloud.ibm.com/docs/secrets-manager?topic=secrets-manager-getting-started) secret type. This job dynamically generates credentials for the JFrog platform.
 
-[//]: # (## Synonyms and Terminology)
-
-[//]: # ()
-[//]: # (PostgreSQL is the official name of the relational database management system. “Postgres” is a commonly used abbreviation. Both terms refer to the same system and are used interchangeably in this document.)
-
 ## Overview
 
 When triggered by Secrets Manager, the job performs two main operations:
@@ -41,22 +36,22 @@ The job custom environment variables are defined in: [job_config.json](./job_con
 
 ##### Required Parameters
 
-| Environment Variable   | Description                                                                          |
-|------------------------|--------------------------------------------------------------------------------------|
-| `SMIN_LOGIN_SECRET_ID` | User Credentials secret ID containing the login credentials to the JFrog platform    |
-| `SMIN_JFROG_BASE_URL`  | Your JFrog platform base URL. For example: http://<JFROG_PLATFORM_URL>:<ROUTER_PORT> |
+| Environment Variable   | Description                                                                           |
+|------------------------|---------------------------------------------------------------------------------------|
+| `SMIN_LOGIN_SECRET_ID` | Arbitrary secret ID containing the login credentials to the JFrog platform            |
+| `SMIN_JFROG_BASE_URL`  | Your JFrog platform base URL. For example: https://<JFROG_PLATFORM_URL>:<ROUTER_PORT> |
 
 ##### Optional Parameters
 
-| Environment Variable           | Description                                                                                                                                                                                                | Default Value                                                                |
-|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| `SMIN_USERNAME`                | The user name for which this token is created. Administrators can assign a token to any subject (user); non-admin users who create tokens can only assign tokens to themselves. Limited to 255 characters. | `subject` from authentication token or `username` from the basic credentials |
-| `SMIN_SCOPE`                   | The scope of access that the token provides. For more information and configuration options, see [Create a JFrog Scoped Token](https://jfrog.com/help/r/HmVki7GUNPbjnGgpFbjGmw/l2UYqIBsb1aZ3I4nhXIYgA).    | `applied-permissions/user`                                                   |
-| `SMIN_EXPIRES_IN_SECONDS`      | The amount of time, in seconds, it would take for the token to expire. Must be non-negative.                                                                                                               | `7776000 (90 days)`                                                          |
-| `SMIN_REFRESHABLE`             | The token is not refreshable by default.                                                                                                                                                                   | `false`                                                                      |
-| `SMIN_DESCRIPTION`             | Free text token description. Useful for filtering and managing tokens. Limited to 1024 characters.                                                                                                         | `""`                                                                         |
-| `SMIN_AUDIENCE`                | A space-separated list of the other instances or services that should accept this token identified by their Service-IDs. Limited to 255 characters.                                                        | `*@*`                                                                        |
-| `SMIN_INCLUDE_REFERENCE_TOKEN` | Generate a Reference Token (alias to Access Token) in addition to the full token (available from Artifactory 7.38.10).                                                                                     | `false`                                                                      |
+| Environment Variable           | Description                                                                                                                                                                                                | Default Value                       |
+|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| `SMIN_USERNAME`                | The user name for which this token is created. Administrators can assign a token to any subject (user); non-admin users who create tokens can only assign tokens to themselves. Limited to 255 characters. | `subject` from authentication token |
+| `SMIN_SCOPE`                   | The scope of access that the token provides. For more information and configuration options, see [Create a JFrog Scoped Token](https://jfrog.com/help/r/HmVki7GUNPbjnGgpFbjGmw/l2UYqIBsb1aZ3I4nhXIYgA).    | `applied-permissions/user`          |
+| `SMIN_EXPIRES_IN_SECONDS`      | The amount of time, in seconds, it would take for the token to expire. Must be non-negative.                                                                                                               | `7776000 (90 days)`                 |
+| `SMIN_REFRESHABLE`             | The token is not refreshable by default.                                                                                                                                                                   | `false`                             |
+| `SMIN_DESCRIPTION`             | Free text token description. Useful for filtering and managing tokens. Limited to 1024 characters.                                                                                                         | `""`                                |
+| `SMIN_AUDIENCE`                | A space-separated list of the other instances or services that should accept this token identified by their Service-IDs. Limited to 255 characters.                                                        | `*@*`                               |
+| `SMIN_INCLUDE_REFERENCE_TOKEN` | Generate a Reference Token (alias to Access Token) in addition to the full token (available from Artifactory 7.38.10).                                                                                     | `false`                             |
 
 #### Output Values
 
@@ -68,23 +63,7 @@ The job produces these values that are stored in Secrets Manager:
 
 ## Security Features
 
-TODO
-
-[//]: # (* **Dynamic Credentials**: Credentials are dynamically generated with minimal privileges and are automatically deleted after use.)
-
-[//]: # (* **Least Privilege**: Grants read-only access to a specific schema.)
-
-[//]: # (* **Secure Password Generation**:)
-
-[//]: # (   * 64-character, randomly generated password.)
-
-[//]: # (   * Uses a cryptographically secure random generator.)
-
-[//]: # (   * Contains a mix of uppercase, lowercase, numbers, and special characters.)
-
-[//]: # (* **Transactional Role Management**: Uses database transactions to ensure atomic role creation and privilege assignment.)
-
-[//]: # (* **Secured Connection**: Supports secure TLS connections with custom certificates.)
+Uses JFrog platform login credentials managed as an Arbitrary secret.
 
 ## Development
 
@@ -100,6 +79,7 @@ jfrog-access-token-provider-go/
 │   │   └── secrets_manager_job.go  - Handles integration with IBM Cloud Secrets Manager
 │   └── utils/
 │       └── logger.go           - Provides logging functionality
+        └── resty_client.go     - Provides http client functionality
 └── job_config.json             - Defines the input and output parameters for the job
 ```
 
@@ -116,13 +96,13 @@ cd jfrog-access-token-provider-go
 go test ./internal/job
 
 # Build the job binary
-go build -o jfrog-access-token-provider ./cmd
+go build -o jfrog-access-token-provider-go ./cmd
 ```
 
 ### How It Works
 
 1. **Initialization**: Reads configuration from environment variables.
-2. **Login Credentials Retrieval**: Retrieves JFrog platform's login credentials from a Secrets Manager User Credentials secret.
+2. **Login Credentials Retrieval**: Retrieves JFrog platform's login credentials from a Secrets Manager Arbitrary secret.
 3. **Credentials Generation**: Creates a new JFrog access token.
 4. **Output**: Provides new credentials back to Secrets Manager.
 
@@ -138,8 +118,7 @@ go build -o jfrog-access-token-provider ./cmd
     * Secrets Manager CLI Plugin
 * A JFrog user account with:
     * Admin privileges if the token will be generated for other users.
-    * Creation of tokens enabled in the JFrog Platform UI if using basic authentication. You cannot create token by using basic credentials if you enabled multi-factor authentication. For more information, see [Enable Token Generation via API](https://jfrog.com/help/access?ft:clusterId=UUID-7bc85ed9-8ecf-6b8c-3c49-9c6999b53ab1)
-* Valid JFrog platform credentials - a Bearer token or Basic Authentication credentials.
+* Valid JFrog platform credentials - a Bearer token.
 * An IBM Cloud Secrets Manager instance
 
 ### Step-by-Step Setup
@@ -150,8 +129,8 @@ go build -o jfrog-access-token-provider ./cmd
 # Set variables
 REGION=us-south
 RESOURCE_GROUP=Default
-CE_PROJECT_NAME=jfrog-access-token-provider
-CE_JOB_NAME=jfrog-access-token-provider-job
+CE_PROJECT_NAME=jfrog-access-token-provider-go
+CE_JOB_NAME=jfrog-access-token-provider-go-job
 
 # Login to your IBM Cloud account
 ibmcloud login [--sso]
@@ -212,7 +191,7 @@ This command will:
 
 ```bash
 # Create Service ID
-ibmcloud iam service-id-create jfrog-access-token-provider-sid --description "Service ID for Secret Manager JFrog Access Token provider"
+ibmcloud iam service-id-create jfrog-access-token-provider-go-sid --description "Service ID for Secret Manager JFrog Access Token provider"
 
 # Capture the ID of this Service ID
 SERVICEID_ID=<serviceid_id>
@@ -234,7 +213,7 @@ ibmcloud secrets-manager config set service-url https://$SM_INSTANCE_ID.$REGION.
 
 # Create a Secret Group to contain the JFrog access token provider secrets
 ibmcloud secrets-manager secret-group-create \
-    --name jfrog-access-token-provider-sg \
+    --name jfrog-access-token-provider-go-sg \
     --description "Secret Group containing JFrog Access Token provider secrets"
 
 # Capture the ID of this secret group
@@ -274,7 +253,7 @@ Create an IAM Credentials secret for managing the IAM Service ID API key that th
 # Create an IAM Credentials secret
 ibmcloud secrets-manager secret-create \
     --secret-type iam_credentials \
-    --secret-name jfrog-access-token-provider-apikey \
+    --secret-name jfrog-access-token-provider-go-apikey \
     --secret-description "Secret managing the apikey for the JFrog Access Token provider" \
     --secret-group-id $SECRET_GROUP_ID \
     --secret-ttl 90d \
@@ -290,22 +269,20 @@ ibmcloud secrets-manager secret-create \
 IAM_CREDENTIALS_SECRET_ID=<iam_credentials_secret_id>
 ```
 
-#### 7. Create a User Credentials secret
+#### 7. Create an Arbitrary secret
 
-Create a User Credentials secret managing the login credentials for the JFrog Platform.
+Create an Arbitrary Credentials secret managing the login credentials for the JFrog Platform.
 
 ```bash
 # Set variables
-JFROG_USERNAME=<your-JFrog-platform-username>
-JFROG_LOGIN-CREDENTIALS=<your-JFrog-platform-login-credentials> # Password for basic authentication or a Bearer token.
+JFROG_LOGIN_CREDENTIALS=<your-JFrog-platform-login-credentials> # A Bearer token.
 
 ibmcloud secrets-manager secret-create \
-    --secret-type username_password \
-    --secret-name jfrog-access-token-provider-login \
+    --secret-type arbitrary \
+    --secret-name jfrog-access-token-provider-go-login \
     --secret-description "Secret managing the login credentials for the JFrog Access Token provider" \
     --secret-group-id $SECRET_GROUP_ID \
-    --username-password-username $JFROG_USERNAME \
-    --username-password-password $JFROG_LOGIN-CREDENTIALS
+    --arbitrary-payload $JFROG_LOGIN_CREDENTIALS
 
 # Capture the ID of this secret
 LOGIN_SECRET_ID=<secret_id>
@@ -319,7 +296,7 @@ Create a Custom Credentials configuration for the JFrog Access Token provider.
 # Create a custom credentials configuration
 ibmcloud secrets-manager configuration-create \
     --config-type custom_credentials_configuration \
-    --name jfrog-access-token-provider \
+    --name jfrog-access-token-provider-go \
     --custom-credentials-apikey-ref "$IAM_CREDENTIALS_SECRET_ID" \
     --configuration-task-timeout 10m \
     --custom-credentials-code-engine "{
@@ -333,19 +310,18 @@ ibmcloud secrets-manager configuration-create \
 
 ```bash
 # Set variables
-JFROG_PLATFORM_URL=<your-JFrog-platform-URL>
-JFROG_ROUTER_PORT=<JFrog-router-port>
+JFROG_PLATFORM_BASE_URL=<your-JFrog-platform-base-URL>
 
 # Create a custom credentials secret
 ibmcloud secrets-manager secret-create \
   --secret-type custom_credentials \
-  --secret-configuration jfrog-access-token-provider \
+  --secret-configuration jfrog-access-token-provider-go \
   --secret-name example-jfrog-access-token \
   --secret-description "JFrog Access Token" \
   --secret-group-id $SECRET_GROUP_ID \
   --secret-ttl 90d \
   --secret-parameters "{
-    \"jfrog_base_url\": \"http://$JFROG_PLATFORM_URL:$ROUTER_PORT\",
+    \"jfrog_base_url\": \"$JFROG_PLATFORM_BASE_URL\",
     \"login_secret_id\": \"$LOGIN_SECRET_ID\"
   }" \
   --secret-rotation '{
@@ -359,8 +335,23 @@ JFROG_ACCESS_TOKEN_SECRET_ID=<secret_id>
 ```
 
 #### 10. Test the JFrog Access Token
-TODO
 
+Retrieve the Token from Secrets Manager and then call JFrog's GET Access Tokens API to test its validity:
+
+```bash
+# Retrieve the secret
+ibmcloud secrets-manager secret --id=$JFROG_ACCESS_TOKEN_SECRET_ID
+
+# Capture the JFrog Access token
+JFROG_ACCESS_TOKEN=<credentials_content/access_token>
+
+# Call JFrog GET Access Tokens request
+curl  -H "Authorization: Bearer $JFROG_ACCESS_TOKEN" "$JFROG_PLATFORM_BASE_URL/access/api/v1/tokens"
+
+{
+  "tokens": <list_of_accessible_tokens>
+}
+```
 
 ### Troubleshooting
 
@@ -382,12 +373,7 @@ ibmcloud ce jobrun logs -f -n $TASK_ID
 
 ## Limitations
 
-//TODO
-
-Maybe:
-* You cannot create token by using basic credentials if you enabled multi-factor authentication.
-* If you use basic credentials, you must enable creation of tokens in the JFrog Platform UI. For more information, see [Enable Token Generation via API.](https://jfrog.com/help/access?ft:clusterId=UUID-7bc85ed9-8ecf-6b8c-3c49-9c6999b53ab1).
-* For more information, see [JFrog Access Tokens docs](https://jfrog.com/help/r/jfrog-platform-administration-documentation/access-tokens)
+A Bearer token is the only supported authentication method for the JFrog platform. 
 
 ## License
 

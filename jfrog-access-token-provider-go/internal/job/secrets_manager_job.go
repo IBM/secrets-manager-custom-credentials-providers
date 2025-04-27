@@ -20,28 +20,28 @@ import (
 // Config holds all configuration settings
 type Config struct {
 	// Common fields
-	SM_ACCESS_APIKEY string
-	SM_INSTANCE_URL string
-	SM_SECRET_GROUP_ID string
-	SM_SECRET_NAME string
-	SM_SECRET_TASK_ID string
-	SM_CREDENTIALS_ID string
+	SM_ACCESS_APIKEY     string
+	SM_INSTANCE_URL      string
+	SM_SECRET_GROUP_ID   string
+	SM_SECRET_NAME       string
+	SM_SECRET_TASK_ID    string
+	SM_CREDENTIALS_ID    string
 	SM_SECRET_VERSION_ID string
-	SM_SECRET_ID string
-	SM_ACTION string
+	SM_SECRET_ID         string
+	SM_ACTION            string
 
 	// User fields
-	SM_GRANT_TYPE string // From env: SMIN_GRANT_TYPE
-	SM_USERNAME string // From env: SMIN_USERNAME
-	SM_SCOPE string // From env: SMIN_SCOPE
-	SM_EXPIRES_IN_SECONDS int // From env: SMIN_EXPIRES_IN_SECONDS
-	SM_REFRESHABLE bool // From env: SMIN_REFRESHABLE
-	SM_DESCRIPTION string // From env: SMIN_DESCRIPTION
-	SM_AUDIENCE string // From env: SMIN_AUDIENCE
-	SM_INCLUDE_REFERENCE_TOKEN bool // From env: SMIN_INCLUDE_REFERENCE_TOKEN
-	SM_LOGIN_SECRET_ID string // From env: SMIN_LOGIN_SECRET_ID
-	SM_JFROG_BASE_URL string // From env: SMIN_JFROG_BASE_URL
+	SM_USERNAME                string // From env: SMIN_USERNAME
+	SM_SCOPE                   string // From env: SMIN_SCOPE
+	SM_EXPIRES_IN_SECONDS      int    // From env: SMIN_EXPIRES_IN_SECONDS
+	SM_REFRESHABLE             bool   // From env: SMIN_REFRESHABLE
+	SM_DESCRIPTION             string // From env: SMIN_DESCRIPTION
+	SM_AUDIENCE                string // From env: SMIN_AUDIENCE
+	SM_INCLUDE_REFERENCE_TOKEN bool   // From env: SMIN_INCLUDE_REFERENCE_TOKEN
+	SM_LOGIN_SECRET_ID         string // From env: SMIN_LOGIN_SECRET_ID
+	SM_JFROG_BASE_URL          string // From env: SMIN_JFROG_BASE_URL
 }
+
 // CredentialsPayload contains fields for SMOUT_ environment variables
 type CredentialsPayload struct {
 	ACCESS_TOKEN string `json:"access_token" validate:"required,max=100000"`
@@ -113,29 +113,9 @@ func ConfigFromEnv() (Config, error) {
 	}
 
 	// Process user variables
-	// Process SM_GRANT_TYPE as string
-	value = GetEnvVar("SM_GRANT_TYPE_VALUE")
-	
-	// Skip if value is empty and not explicitly required
-	if value == "" {
-		isRequired := false
-		if isRequired {
-			errs = append(errs, "required environment variable SM_GRANT_TYPE_VALUE is not set")
-		}
-	} else {
-		// Process the value based on type
-		processedValue, err = processValue(value, "string")
-		if err != nil {
-			errs = append(errs, err.Error())
-		} else {
-			// Add to config
-			reflect.ValueOf(&config).Elem().FieldByName("SM_GRANT_TYPE").Set(reflect.ValueOf(processedValue))
-		}
-	}
-
 	// Process SM_USERNAME as string
 	value = GetEnvVar("SM_USERNAME_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -155,7 +135,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_SCOPE as string
 	value = GetEnvVar("SM_SCOPE_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -175,7 +155,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_EXPIRES_IN_SECONDS as integer
 	value = GetEnvVar("SM_EXPIRES_IN_SECONDS_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -195,7 +175,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_REFRESHABLE as boolean
 	value = GetEnvVar("SM_REFRESHABLE_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -215,7 +195,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_DESCRIPTION as string
 	value = GetEnvVar("SM_DESCRIPTION_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -235,7 +215,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_AUDIENCE as string
 	value = GetEnvVar("SM_AUDIENCE_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -255,7 +235,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_INCLUDE_REFERENCE_TOKEN as boolean
 	value = GetEnvVar("SM_INCLUDE_REFERENCE_TOKEN_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := false
@@ -275,7 +255,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_LOGIN_SECRET_ID as secret_id
 	value = GetEnvVar("SM_LOGIN_SECRET_ID_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := true
@@ -295,7 +275,7 @@ func ConfigFromEnv() (Config, error) {
 
 	// Process SM_JFROG_BASE_URL as string
 	value = GetEnvVar("SM_JFROG_BASE_URL_VALUE")
-	
+
 	// Skip if value is empty and not explicitly required
 	if value == "" {
 		isRequired := true
@@ -487,7 +467,7 @@ func UpdateTask(client SecretsManagerClient, config *Config, secretTaskPrototype
 
 	return result, nil
 }
-	
+
 // ValidatedStructToMap converts a struct to a map[string]interface{} while performing validation
 // according to the struct's validation tags
 func ValidatedStructToMap(input any) (map[string]interface{}, error) {
@@ -514,7 +494,7 @@ func ValidatedStructToMap(input any) (map[string]interface{}, error) {
 
 	return result, nil
 }
-	
+
 func GetValueByPath(data map[string]interface{}, path string) (interface{}, bool) {
 	segments := strings.Split(path, "/")
 

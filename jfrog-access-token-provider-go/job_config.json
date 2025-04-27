@@ -1,10 +1,6 @@
 {
     "job_env_variables": [
         {
-            "name": "SMIN_GRANT_TYPE",
-            "value": "type:string, required:false"
-        },
-        {
             "name": "SMIN_USERNAME",
             "value": "type:string, required:false"
         },
