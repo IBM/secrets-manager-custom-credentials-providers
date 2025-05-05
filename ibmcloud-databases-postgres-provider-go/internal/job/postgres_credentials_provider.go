@@ -337,13 +337,12 @@ func fetchPGServiceCredentials(client SecretsManagerClient, config *Config) (sc 
 		}
 		return nil, err
 	}
-	// Todo - remove this workaround for stage. ICD for PG is not availabe in stage. Using a KV secret with prod PG Service Credetails.
-	kvSecret, ok := secret.(*sm.KVSecret)
+	serviceCredentialsSecret, ok := secret.(*sm.ServiceCredentialsSecret)
 	if !ok {
-		return nil, fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected kv type", config.SM_LOGIN_SECRET_ID, secret)
+		return nil, fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected service credentials type", config.SM_LOGIN_SECRET_ID, secret)
 	}
 
-	return kvSecret.Data, nil
+	return serviceCredentialsSecret.Credentials.GetProperties(), nil
 }
 
 func generateRoleName() string {
