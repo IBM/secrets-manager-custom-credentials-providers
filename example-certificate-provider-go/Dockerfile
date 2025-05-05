@@ -4,12 +4,6 @@ FROM golang:1.24 AS builder
 # Set the working directory inside the container
 WORKDIR /app
 
-# -------------------------------------------------------------------
-# ToDo - remove this workaround once the new GO SDK will be published
-# Copy the local dependency folder
-COPY secrets-manager-go-sdk/ ./secrets-manager-go-sdk/
-# -------------------------------------------------------------------
-
 # Copy go.mod and go.sum to leverage Docker caching
 COPY go.mod go.sum ./
 RUN go mod download
