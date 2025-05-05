@@ -18,7 +18,7 @@ import (
 	sm "github.com/IBM/secrets-manager-go-sdk/v2/secretsmanagerv2"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
