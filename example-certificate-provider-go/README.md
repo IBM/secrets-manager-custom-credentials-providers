@@ -158,7 +158,7 @@ For ease of use, this example assumes that all services are deployed within the 
 ```bash
 # Set variables
 REGION=us-south
-RESOURCE_GROUP=Default
+RESOURCE_GROUP=Default # Note that some regions use 'default' as the name of the default resource group.
 CE_PROJECT_NAME=certificate-provider
 CE_JOB_NAME=certificate-provider-job
 

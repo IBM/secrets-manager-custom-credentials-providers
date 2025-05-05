@@ -142,7 +142,7 @@ go build -o postgres-credentials-provider ./cmd
 ```bash
 # Set variables
 REGION=us-south
-RESOURCE_GROUP=Default
+RESOURCE_GROUP=Default # Note that some regions use 'default' as the name of the default resource group.
 CE_PROJECT_NAME=postgres-credentials-provider
 CE_JOB_NAME=postgres-credentials-provider-job
 
@@ -242,8 +242,8 @@ PG_INSTANCE_NAME=<your-postgres-instance-name>
 ibmcloud resource service-instance $PG_INSTANCE_NAME
 
 # Capture the PostgreSQL instance ID and CRN
-PG_INSTANCE_ID=<instance_id>   
-PG_INSTANCE_CRN=<instance_crn> 
+PG_INSTANCE_ID=<instance_guid>   
+PG_INSTANCE_CRN=<instance_id> 
 ```
 
 Create an IAM authorization policy assigning the **Key Manager** role to the Secrets Manager instance instance for the Databases for PostgreSQL instance.
