@@ -1,4 +1,4 @@
-name: Create release
+name: Create new release
 permissions:
   contents: write
   actions: read
@@ -12,14 +12,12 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
-    environment:
-      name: Semver
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Semantic Release
-        uses: huggingface/semver-release-action@latest
+        run: npm install semantic-release;npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
