@@ -20,6 +20,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
+        uses: huggingface/semver-release-action@latest
         env:
-          GH_TOKEN: ${{ secrets.token }}
+          GITHUB_TOKEN: ${{ secrets.token }}
