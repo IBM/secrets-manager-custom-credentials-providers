@@ -6,7 +6,7 @@ require (
 	github.com/IBM/go-sdk-core/v5 v5.19.1
 	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.11
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.7.2
+	github.com/jackc/pgx/v5 v5.7.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.37.0
 )
