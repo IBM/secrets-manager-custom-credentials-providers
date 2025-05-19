@@ -10,7 +10,7 @@ You can also check out the [Secrets Manager documentation](https://cloud.ibm.com
 
 ## Issues
 
-If you encounter an issue with this project, you're welcome to submit a [bug report](https://github.com/IBM/secrets-manager-go-sdk/issues) to help us improve. Before you create a new issue, please search for similar issues in case someone has already reported the same problem.
+If you encounter an issue with this project, you're welcome to submit a [bug report](https://github.com/IBM/secrets-manager-custom-credentials-providers/issues) to help us improve. Before you create a new issue, please search for similar issues in case someone has already reported the same problem.
 
 ## Changes
 
