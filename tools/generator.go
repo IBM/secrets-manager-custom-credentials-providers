@@ -70,6 +70,10 @@ const builtinJobConfig = `{
         {
             "name": "SM_ACTION",
             "value": "type:string, required:true"
+        },
+        {
+            "name": "SM_TRIGGER",
+            "value": "type:string, required:true"
         }
     ]
 }`

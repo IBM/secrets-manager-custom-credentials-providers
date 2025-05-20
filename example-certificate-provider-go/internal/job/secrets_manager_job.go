@@ -29,6 +29,7 @@ type Config struct {
 	SM_SECRET_VERSION_ID string
 	SM_SECRET_ID         string
 	SM_ACTION            string
+	SM_TRIGGER           string
 
 	// User fields
 	SM_COMMON_NAME     string // From env: SMIN_COMMON_NAME
@@ -109,6 +110,13 @@ func ConfigFromEnv() (Config, error) {
 		errs = append(errs, err.Error())
 	} else {
 		config.SM_ACTION = value
+	}
+
+	value, err = MustGetEnvVar("SM_TRIGGER")
+	if err != nil {
+		errs = append(errs, err.Error())
+	} else {
+		config.SM_TRIGGER = value
 	}
 
 	// Process user variables
