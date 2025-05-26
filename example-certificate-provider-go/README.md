@@ -19,16 +19,17 @@ The job uses service and custom environment variables for configuration, which a
 
 The service environment variables that are passed by Secrets Manager to the job:
 
-| Environment Variable | Description |
-|---------------------|-------------|
-| `SM_ACTION` | Specifies whether to create or delete credentials (`create_credentials` or `delete_credentials`) |
-| `SM_INSTANCE_URL` | The URL of the Secrets Manager instance |
-| `SM_SECRET_TASK_ID` | The ID of the task that the job run is currently operating on |
-| `SM_SECRET_ID` | The ID of the secret being processed |
-| `SM_SECRET_NAME` | The name of the secret being processed |
-| `SM_SECRET_GROUP_ID` | The ID of the Secrets Manager secret group that contains the secret |
-| `SM_CREDENTIALS_ID` | Only provided for `delete_credentials` action. The credentials ID assigned at creation |
-| `SM_SECRET_VERSION_ID` | Only provided for `delete_credentials` action. The Secrets Manager secret version ID that the job run is operating on |
+| Environment Variable   | Description                                                                                                                                                                                              |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SM_ACTION`            | Specifies whether to create or delete credentials (`create_credentials` or `delete_credentials`)                                                                                                         |
+| `SM_TRIGGER`           | Specifies the action that triggered this task. Allowed values are: `secret_creation`, `manual_secret_rotation`, `automatic_secret_rotation`, `secret_version_expiration`, `secret_version_data_deletion` |
+| `SM_INSTANCE_URL`      | The URL of the Secrets Manager instance                                                                                                                                                                  |
+| `SM_SECRET_TASK_ID`    | The ID of the task that the job run is currently operating on                                                                                                                                            |
+| `SM_SECRET_ID`         | The ID of the secret being processed                                                                                                                                                                     |
+| `SM_SECRET_NAME`       | The name of the secret being processed                                                                                                                                                                   |
+| `SM_SECRET_GROUP_ID`   | The ID of the Secrets Manager secret group that contains the secret                                                                                                                                      |
+| `SM_CREDENTIALS_ID`    | Only provided for `delete_credentials` action. The credentials ID assigned at creation                                                                                                                   |
+| `SM_SECRET_VERSION_ID` | Only provided for `delete_credentials` action. The Secrets Manager secret version ID that the job run is operating on                                                                                    |
 
 #### Job Custom Parameters
 
