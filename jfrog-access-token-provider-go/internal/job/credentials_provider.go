@@ -48,6 +48,7 @@ func Run() {
 	if err != nil {
 		log.Fatalf("Failed to create config: %v", err)
 	}
+	config.SM_JFROG_BASE_URL = strings.TrimSuffix(config.SM_JFROG_BASE_URL, "/")
 
 	smClient, err := NewSecretsManagerClient(config)
 	if err != nil {
