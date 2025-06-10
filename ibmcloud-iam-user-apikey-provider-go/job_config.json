@@ -1,0 +1,49 @@
+{
+    "job_env_variables": [
+        {
+            "name": "SMIN_APIKEY_SECRET_ID",
+            "value": "type:secret_id, required:true"
+        },
+        {
+            "name": "SMIN_IAM_ID",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_ACCOUNT_ID",
+            "value": "type:string, required:false"
+        },
+        {
+            "name": "SMIN_SUPPORT_SESSIONS",
+            "value": "type:boolean, required:false"
+        },
+        {
+            "name": "SMIN_ACTION_WHEN_LEAKED",
+            "value": "type:enum[none|disable|delete], required:false"
+        },
+        {
+            "name": "SMIN_URL",
+            "value": "type:string, required:false"
+        },
+
+        {
+            "name": "SMOUT_APIKEY",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_ID",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_CRN",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_IAM_ID",
+            "value": "type:string, required:true"
+        },
+        {
+            "name": "SMOUT_ACCOUNT_ID",
+            "value": "type:string, required:true"
+        }
+    ]
+}

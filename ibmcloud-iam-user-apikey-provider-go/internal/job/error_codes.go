@@ -1,0 +1,10 @@
+package job
+
+const (
+	Err10000 = "ERR10000"
+	Err10001 = "ERR10001"
+	Err10002 = "ERR10002"
+	Err10003 = "ERR10003"
+	Err10004 = "ERR10004"
+	Err10005 = "ERR10005"
+)
