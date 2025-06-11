@@ -111,12 +111,22 @@ func fetchApiKey(smClient SecretsManagerClient, config *Config) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	arbitrarySecret, ok := secret.(*sm.ArbitrarySecret)
-	if !ok {
-		return "", fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected arbitrary type", config.SM_APIKEY_SECRET_ID, secret)
+
+	switch v := secret.(type) {
+	case *sm.ArbitrarySecret:
+		logger.Info(fmt.Sprintf("Arbitrary secret with ID: %s succesfully obtained.", config.SM_APIKEY_SECRET_ID))
+		return *v.Payload, nil
+	case *sm.CustomCredentialsSecret:
+		logger.Info(fmt.Sprintf("Custom Credentials secret with ID: %s succesfully obtained.", config.SM_APIKEY_SECRET_ID))
+		credentials := v.CredentialsContent
+		apikey, ok := credentials["apikey"]
+		if ok {
+			return fmt.Sprintf("%v", apikey), nil
+		}
+		return "", fmt.Errorf("secret '%s' is missing 'apikey' field", config.SM_APIKEY_SECRET_ID)
+	default:
+		return "", fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected arbitrary or custom credentials type", config.SM_APIKEY_SECRET_ID, secret)
 	}
-	logger.Info(fmt.Sprintf("Secret with ID: %s succesfully obtained.", config.SM_APIKEY_SECRET_ID))
-	return *arbitrarySecret.Payload, nil
 }
 
 func rollbackAndExit(identityServices identity_services_wrapper.Wrapper, config *Config, apikeyID string, reason string) {
