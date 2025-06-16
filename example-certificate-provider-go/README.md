@@ -349,12 +349,12 @@ Secrets Manager configuration injected the following environment variables:
 # Create a secret
 ibmcloud secrets-manager secret-create \
   --secret-type custom_credentials \
-  --secret-configuration certificate-provider \
+  --custom-credentials-configuration certificate-provider \
   --secret-name example-com-cert \
   --secret-description "Self-signed certificate for example.com" \
   --secret-group-id $SECRET_GROUP_ID \
   --secret-ttl 90d \
-  --secret-parameters '{
+  --custom-credentials-parameters '{
     "common_name": "example.com",
     "san": "www.example.com,api.example.com",
     "org": "Example Inc",

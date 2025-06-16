@@ -354,12 +354,12 @@ ibmcloud secrets-manager configuration-create \
 # Create a custom credentials secret
 ibmcloud secrets-manager secret-create \
   --secret-type custom_credentials \
-  --secret-configuration postgres-credentials-provider \
+  --custom-credentials-configuration postgres-credentials-provider \
   --secret-name example-pg-credentials \
   --secret-description "Read-only credentials for $PG_INSTANCE_NAME database public schema" \
   --secret-group-id $SECRET_GROUP_ID \
   --secret-ttl 90d \
-  --secret-parameters "{
+  --custom-credentials-parameters "{
     \"schema_name\": \"public\",
     \"login_secret_id\": \"$LOGIN_SECRET_ID\"
   }" \
