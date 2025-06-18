@@ -2,10 +2,22 @@ package identity_services_wrapper
 
 import (
 	"errors"
+	"fmt"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	"github.com/mitchellh/mapstructure"
 )
+
+/*
+
+A thin wrapper around IAM Identity Service API (https://cloud.ibm.com/apidocs/iam-identity-token-api?code=go).
+
+It exposes 2 functions:
+- CreateApiKey - creates a new locked API key
+- DeleteApiKey - unlocks and deletes an API key (if it exists)
+
+
+*/
 
 type Wrapper interface {
 	CreateApiKey(options *CreateOptions) (*ApiKey, error)
@@ -33,6 +45,7 @@ type CreateOptions struct {
 	ActionWhenLeaked string
 }
 
+// New initializes the identity services wrapper
 func New(url string, apikey string) (Wrapper, error) {
 
 	serviceClientOptions := &iamidentityv1.IamIdentityV1Options{
@@ -53,6 +66,7 @@ func New(url string, apikey string) (Wrapper, error) {
 	}, nil
 }
 
+// CreateApiKey creates a new API with the given options. The API key will be created enabled and locked.
 func (w *wrapper) CreateApiKey(options *CreateOptions) (*ApiKey, error) {
 	resultApiKey, _, err := w.client.CreateAPIKey(buildOptions(options))
 	if err != nil {
@@ -67,6 +81,8 @@ func (w *wrapper) CreateApiKey(options *CreateOptions) (*ApiKey, error) {
 	}, nil
 }
 
+// DeleteApiKey deletes the given API key associated with the given ID if it exists.
+// if the API key isn't found returns nil without making any changes.
 func (w *wrapper) DeleteApiKey(apikeyId string) error {
 	found, err := w.unlockApiKey(apikeyId)
 	if err != nil {
@@ -98,20 +114,27 @@ func buildOptions(options *CreateOptions) *iamidentityv1.CreateAPIKeyOptions {
 	return createOpts
 }
 
+// unlocks and API key if it exists. Returns a boolean value indicating the existence of the API key
 func (w *wrapper) unlockApiKey(apikeyID string) (bool, error) {
 	unlockAPIKeyOptions := w.client.NewUnlockAPIKeyOptions(apikeyID)
 	resp, err := w.client.UnlockAPIKey(unlockAPIKeyOptions)
+
 	if err == nil && resp != nil && resp.StatusCode == 204 {
+		// the API key was found and was successfully unlocked
 		return true, nil
 	}
+
 	if isApiKeyNotFound(resp) {
+		// an API key with the given ID does not exist
 		return false, nil
 	}
 	if err != nil {
+		// an error has occurred
 		return false, err
 	}
+
 	// no error, but unexpected response
-	return false, errors.New("unexpected response from IAM when attempting to unlock API key.")
+	return false, errors.New(fmt.Sprintf("unexpected %d response from IAM when attempting to unlock API key.", resp.StatusCode))
 
 }
 
@@ -124,6 +147,7 @@ type errorResponse struct {
 	} `mapstructure:"errors"`
 }
 
+// checks if the response indicates that the given API key does not exist.
 func isApiKeyNotFound(resp *core.DetailedResponse) bool {
 	if resp != nil && resp.GetStatusCode() == 404 {
 		if resMap, ok := resp.GetResultAsMap(); ok {

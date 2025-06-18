@@ -6,8 +6,8 @@ This is an example Go application designed to run as an IBM Cloud Code Engine [j
 
 When triggered by Secrets Manager, the job performs two main operations:
 
-* **Credentials Creation** - Generates a new user IAM API Key.
-* **Credentials Deletion** - Deletes a previously created user IAM API Key.
+* **Credentials Creation** - Generates a new user IAM API Key. The API key will be enabled and locked.
+* **Credentials Deletion** - Deletes a previously created user IAM API Key. If locked, the API key will be unlocked before deletion.
 
 ## Configuration
 
@@ -37,19 +37,19 @@ The job custom environment variables are defined in: [job_config.json](./job_con
 
 ##### Required Parameters
 
-| Environment Variable   | Description                                                                           |
-|------------------------|---------------------------------------------------------------------------------------|
-| `SMIN_APIKEY_SECRET_ID` | Arbitrary secret ID containing the an API key to use for authentication.              |
+| Environment Variable    | Description                                                                                                                                                    |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SMIN_APIKEY_SECRET_ID` | ID of the secret containing an API key to use to authenticate against IAM Identity Services. Can either be an Arbitrary secret or a Custom Credentials secret. |
 
 ##### Optional Parameters
 
-| Environment Variable      | Description                                                                                                                                         | Default Value                                                    |
-|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| `SMIN_IAM_ID`             | The IAM ID that the created API key authenticates.                                                                                                  | Inherited from the API key referenced in `SMIN_APIKEY_SECRET_ID` |
-| `SMIN_ACCOUNT_ID`         | The account ID for the created API key.                                                                                                             | Inherited from the API key referenced in `SMIN_APIKEY_SECRET_ID` |
-| `SMIN_SUPPORT_SESSIONS`   | Defines whether you can manage CLI login sessions for the API key.                                                                                  | `false`                                                          |
-| `SMIN_ACTION_WHEN_LEAKED` | Defines the action to take when API key is leaked, valid values are `none`, `disable` and `delete`.                                                 | `none`                                                           |
-| `SMIN_URL`                | The URL of the IAM service.                                                                                                                         | `https://iam.cloud.ibm.com`                                                             |
+| Environment Variable      | Description                                                                                         | Default Value                                                    |
+|---------------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
+| `SMIN_IAM_ID`             | The IAM ID that the created API key authenticates.                                                  | Inherited from the API key referenced in `SMIN_APIKEY_SECRET_ID` |
+| `SMIN_ACCOUNT_ID`         | The account ID for the created API key.                                                             | Inherited from the API key referenced in `SMIN_APIKEY_SECRET_ID` |
+| `SMIN_SUPPORT_SESSIONS`   | Defines whether you can manage CLI login sessions for the API key.                                  | `false`                                                          |
+| `SMIN_ACTION_WHEN_LEAKED` | Defines the action to take when API key is leaked, valid values are `none`, `disable` and `delete`. | `none`                                                           |
+| `SMIN_URL`                | The URL of the IAM service.                                                                         | `https://iam.cloud.ibm.com`                                      |
 
 #### Output Values
 
