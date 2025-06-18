@@ -316,12 +316,12 @@ JFROG_PLATFORM_BASE_URL=<your-JFrog-platform-base-URL>
 # Create a custom credentials secret
 ibmcloud secrets-manager secret-create \
   --secret-type custom_credentials \
-  --secret-configuration jfrog-access-token-provider-go \
+  --custom-credentials-configuration jfrog-access-token-provider-go \
   --secret-name example-jfrog-access-token \
   --secret-description "JFrog Access Token" \
   --secret-group-id $SECRET_GROUP_ID \
   --secret-ttl 90d \
-  --secret-parameters "{
+  --custom-credentials-parameters "{
     \"jfrog_base_url\": \"$JFROG_PLATFORM_BASE_URL\",
     \"login_secret_id\": \"$LOGIN_SECRET_ID\"
   }" \
