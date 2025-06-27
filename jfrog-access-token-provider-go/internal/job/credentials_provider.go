@@ -139,7 +139,7 @@ func deleteCredentials(smClient SecretsManagerClient, restyClient utils.RestyCli
 
 // createJFrogAccessToken creates JFrog Access Token
 func createJFrogAccessToken(smClient SecretsManagerClient, restyClient utils.RestyClientIntf, config *Config) (string, string, error) {
-	jfrogLoginSecret, err := fetchJFrogServiceCredentials(smClient, config)
+	jfrogLoginToken, err := fetchJFrogServiceCredentials(smClient, config)
 	if err != nil {
 		return "", "", err
 	}
@@ -154,7 +154,7 @@ func createJFrogAccessToken(smClient SecretsManagerClient, restyClient utils.Res
 		IncludeReferenceToken: config.SM_INCLUDE_REFERENCE_TOKEN,
 	}
 
-	resp, err := restyClient.Post(*jfrogLoginSecret.Payload, createAccessTokenRequestBody, config.SM_JFROG_BASE_URL+TOKENS_PATH)
+	resp, err := restyClient.Post(jfrogLoginToken, createAccessTokenRequestBody, config.SM_JFROG_BASE_URL+TOKENS_PATH)
 	if err != nil {
 		return "", "", fmt.Errorf("client returned an error: %s", err.Error())
 	}
@@ -177,32 +177,41 @@ func createJFrogAccessToken(smClient SecretsManagerClient, restyClient utils.Res
 }
 
 // fetchJFrogServiceCredentials fetches the credentials for JFrog from Secrets Manager
-func fetchJFrogServiceCredentials(smClient SecretsManagerClient, config *Config) (*sm.ArbitrarySecret, error) {
+func fetchJFrogServiceCredentials(smClient SecretsManagerClient, config *Config) (string, error) {
 	secret, err := GetSecret(smClient, config.SM_LOGIN_SECRET_ID)
 	if err != nil {
 		if strings.Contains(err.Error(), "Provided API key could not be found") {
 			logger.Error(fmt.Errorf("cannot call the secrets manager service: %v", err))
 			os.Exit(1)
 		}
-		return nil, err
+		return "", err
 	}
 
-	arbitrarySecret, ok := secret.(*sm.ArbitrarySecret)
-	if !ok {
-		return nil, fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected arbitrary type", config.SM_LOGIN_SECRET_ID, secret)
+	switch v := secret.(type) {
+	case *sm.ArbitrarySecret:
+		logger.Info(fmt.Sprintf("Arbitrary secret with ID: %s succesfully obtained.", config.SM_LOGIN_SECRET_ID))
+		return *v.Payload, nil
+	case *sm.CustomCredentialsSecret:
+		logger.Info(fmt.Sprintf("Custom Credentials secret with ID: %s succesfully obtained.", config.SM_LOGIN_SECRET_ID))
+		credentials := v.CredentialsContent
+		accessToken, ok := credentials["access_token"]
+		if ok {
+			return fmt.Sprintf("%v", accessToken), nil
+		}
+		return "", fmt.Errorf("secret '%s' is missing 'access_token' field", config.SM_LOGIN_SECRET_ID)
+	default:
+		return "", fmt.Errorf("get secret id: '%s' returned unexpected secret type: %T, expected arbitrary or custom credentials type", config.SM_LOGIN_SECRET_ID, secret)
 	}
-
-	return arbitrarySecret, nil
 }
 
 // revokeJFrogAccessToken revokes JFrog access token with a given token ID
 func revokeJFrogAccessToken(smClient SecretsManagerClient, restyClient utils.RestyClientIntf, config *Config) error {
-	jfrogLoginSecret, err := fetchJFrogServiceCredentials(smClient, config)
+	jfrogLoginToken, err := fetchJFrogServiceCredentials(smClient, config)
 	if err != nil {
 		return err
 	}
 
-	resp, err := restyClient.Delete(*jfrogLoginSecret.Payload, config.SM_JFROG_BASE_URL+TOKENS_PATH+config.SM_CREDENTIALS_ID)
+	resp, err := restyClient.Delete(jfrogLoginToken, config.SM_JFROG_BASE_URL+TOKENS_PATH+config.SM_CREDENTIALS_ID)
 
 	if err != nil {
 		err = fmt.Errorf("Resty client returned an error: %s", err.Error())
