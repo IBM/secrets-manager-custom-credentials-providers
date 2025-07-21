@@ -1,7 +1,0 @@
-service: ai-assistant
-production_code: yes
-production_branches: 
-  - main
-security_sensitive: no
-ip_sensitive: no
-allow_cloud_readers: yes
