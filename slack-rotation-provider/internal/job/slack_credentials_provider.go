@@ -256,34 +256,6 @@ func exchangeRefreshToken(clientID, clientSecret, refreshToken string, restyClie
 	return result.AccessToken, result.RefreshToken, nil
 }
 
-func exchangeVerificationCode(clientID, clientSecret, verificationCode string, redirectUrl string, restyClient utils.RestyClientIntf) (string, string, error) {
-	endpoint := "https://slack.com/api/oauth.v2.access"
-
-	var slackRes SlackAuthResponse
-	resp, err := restyClient.PostWithFormData(map[string]string{
-		"client_id":     clientID,
-		"client_secret": clientSecret,
-		"code":          verificationCode,
-		"redirect_uri":  redirectUrl,
-	}, &slackRes, endpoint)
-
-	if err != nil {
-		log.Fatal("Request error:", err)
-	}
-
-	if resp.StatusCode() != 200 {
-		log.Fatal("Request status error:", resp.StatusCode())
-	}
-
-	result := resp.Request.Result.(*SlackAuthResponse)
-
-	if !result.OK {
-		return "", "", fmt.Errorf("Slack error: %s", result.Error)
-	}
-
-	return result.AuthedUser.AccessToken, result.AuthedUser.RefreshToken, nil
-}
-
 func main() {
 	Run()
 }
