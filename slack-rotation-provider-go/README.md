@@ -53,7 +53,7 @@ The job produces these values that are stored in Secrets Manager:
 ### Project Structure
 
 ```
-slack-rotation-provider/
+slack-rotation-provider-go/
 ├── cmd/
 │   └── main.go                 - Entry point for the application
 ├── internal/
@@ -73,13 +73,13 @@ slack-rotation-provider/
 git clone https://github.com/IBM/secrets-manager-custom-credentials-providers
 
 # navigate to the provider directory
-cd slack-rotation-provider
+cd slack-rotation-provider-go
 
 # Run test
 go test ./internal/job
 
 # Build the job binary
-go build -o slack-rotation-provider ./cmd
+go build -o slack-rotation-provider-go ./cmd
 ```
 
 ### How It Works
@@ -99,8 +99,8 @@ go build -o slack-rotation-provider ./cmd
 # Set variables
 REGION=<region>
 RESOURCE_GROUP=<resource-group> # Note that some regions use 'default' as the name of the default resource group.
-CE_PROJECT_NAME=slack-rotation-provider
-CE_JOB_NAME=slack-rotation-provider-job
+CE_PROJECT_NAME=slack-rotation-provider-go
+CE_JOB_NAME=slack-rotation-provider-go-job
 
 # Login to your IBM Cloud account
 ibmcloud login [--sso]
@@ -207,7 +207,7 @@ ibmcloud iam service-policy-create $SERVICEID_ID \
 2. Add redirect URL (For now we can use https://cloud.ibm.com) as it's a manual one-time process.
 3. Manage distribution -> Click the add to slack button
 4. Copy the code from the url
-5. Run the script in the slack-rotation-provider repository : sh exchange_authentication_code.sh <CLIENT_ID>  <CLIENT_SECRET> <REDIRECT_URI> <CODE>
+5. Run the script in the slack-rotation-provider-go repository : sh exchange_authentication_code.sh <CLIENT_ID>  <CLIENT_SECRET> <REDIRECT_URI> <CODE>
 #### 7. Create an Arbitrary secret
 
 Create an Arbitrary Credentials secret managing the login credentials for the Slack Platform.
@@ -221,7 +221,7 @@ Create a Custom Credentials configuration for the Slack Access Token provider.
 
 ```bash
 # Create a custom credentials configuration
-ibmcloud secrets-manager configuration-create --config-type=custom_credentials_configuration --name=slack_custom_credentials_configration --custom-credentials-apikey-ref <the_iam_credential_secret_id(from part 1)> --custom-credentials-code-engine '{"project_id":"<code_engine_project_id>", "region":"<region>", "job_name":"slack-rotation-provider-job"}'
+ibmcloud secrets-manager configuration-create --config-type=custom_credentials_configuration --name=slack_custom_credentials_configration --custom-credentials-apikey-ref <the_iam_credential_secret_id(from part 1)> --custom-credentials-code-engine '{"project_id":"<code_engine_project_id>", "region":"<region>", "job_name":"slack-rotation-provider-go-job"}'
 ```
 
 #### 9. Create a Secrets Manager Custom Credentials secret

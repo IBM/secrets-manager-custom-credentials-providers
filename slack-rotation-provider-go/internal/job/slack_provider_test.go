@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"io"
 	"net/http"
-	"slack-rotation-provider/internal/utils"
+	"slack-rotation-provider-go/internal/utils"
 	"testing"
 )
 

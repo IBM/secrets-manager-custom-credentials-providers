@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"slack-rotation-provider/internal/utils"
+	"slack-rotation-provider-go/internal/utils"
 	"strings"
 	"time"
 )

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"slack-rotation-provider/internal/job"
+	"slack-rotation-provider-go/internal/job"
 )
 
 func main() {

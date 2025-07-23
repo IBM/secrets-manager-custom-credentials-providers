@@ -1,4 +1,4 @@
-module slack-rotation-provider
+module slack-rotation-provider-go
 
 go 1.24.2
 
