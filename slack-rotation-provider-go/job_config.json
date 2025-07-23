@@ -1,0 +1,16 @@
+{
+  "job_env_variables": [
+    {
+      "name": "SMIN_EXCHANGE_TOKENS_SECRET_ID",
+      "value": "type:string, required:true"
+    },
+    {
+      "name": "SMOUT_SLACK_ACCESS_TOKEN",
+      "value": "type:string, required:true"
+    },
+    {
+      "name": "SMOUT_SLACK_REFRESH_TOKEN",
+      "value": "type:string, required:true"
+    }
+  ]
+}
