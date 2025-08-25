@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.0
-	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.14
+	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.15
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/onsi/ginkgo v1.16.5
