@@ -3,7 +3,7 @@ module ibmcloud-iam-user-apikey-provider-go
 go 1.24.2
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.21.0
+	github.com/IBM/go-sdk-core/v5 v5.21.1
 	github.com/IBM/platform-services-go-sdk v0.86.1
 	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.16
 	github.com/go-playground/validator v9.31.0+incompatible
@@ -26,10 +26,10 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	go.mongodb.org/mongo-driver v1.17.4 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
