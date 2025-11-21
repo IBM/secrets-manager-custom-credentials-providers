@@ -4,6 +4,8 @@ github.com/IBM/go-sdk-core/v5 v5.21.2 h1:mJ5QbLPOm4g5qhZiVB6wbSllfpeUExftGoyPek2
 github.com/IBM/go-sdk-core/v5 v5.21.2/go.mod h1:ngpMgwkjur1VNUjqn11LPk3o5eCyOCRbcfg/0YAY7Hc=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.16 h1:jcA6ksXdofWCGk8Uq3XQsf1daSgbQYAh2cnNSEJf+ac=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.16/go.mod h1:Jj/gYPVjg2O/QF0ov+Lh45Tt+paz4ZoVpkTToojZguw=
+github.com/IBM/secrets-manager-go-sdk/v2 v2.0.18 h1:275bpkgItE29DssQEp1sIbzU0SXI4ZhgpaAHz2K8cCs=
+github.com/IBM/secrets-manager-go-sdk/v2 v2.0.18/go.mod h1:AxxA1cmG3GGOLAg3tXvbmnB0xdRixYGDb5lxPXPFanA=
 github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 h1:DklsrG3dyBCFEj5IhUbnKptjxatkF07cF2ak3yi77so=
 github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
