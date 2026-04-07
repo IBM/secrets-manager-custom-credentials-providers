@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.2
-	github.com/IBM/platform-services-go-sdk v0.96.0
+	github.com/IBM/platform-services-go-sdk v0.97.0
 	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.20
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/mitchellh/mapstructure v1.5.0
