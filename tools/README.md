@@ -113,6 +113,69 @@ Before using this script, ensure you have:
   ibmcloud ce project select --name <project-name>
   ```
 
+#### Required IAM Permissions
+
+To successfully deploy jobs using this tool, your IBM Cloud user account must have the following IAM permissions:
+
+##### Minimum Required Roles
+
+* **Code Engine**: `Writer` or `Manager` role on the Code Engine service
+* **Container Registry**: `Manager` role on the Container Registry service (required for creating service IDs and assigning registry access policies)
+
+##### Specific IAM Actions Required
+
+The tool creates a service ID and assigns it policies to access IBM Container Registry. Your account needs these permissions:
+
+1. **Service ID Management**:
+   * `iam-identity.serviceId.create` - Create service IDs
+   * `iam-identity.serviceId.update` - Update service IDs
+
+2. **Policy Management**:
+   * `iam.policy.create` - Assign policies to service IDs
+   * `iam.policy.update` - Update policies
+
+3. **Container Registry Access**:
+   * `container-registry.namespace.create` - Create registry namespaces (if needed)
+   * `container-registry.image.push` - Push images to registry
+   * `container-registry.image.pull` - Pull images from registry
+
+##### How to Verify Your Permissions
+
+Check your current access:
+
+```bash
+# List your access policies
+ibmcloud iam user-policies <your-email>
+
+# Check Code Engine access
+ibmcloud iam user-policy <your-email> --service-name codeengine
+
+# Check Container Registry access
+ibmcloud iam user-policy <your-email> --service-name container-registry
+```
+
+##### Requesting Access
+
+If you lack the required permissions, contact your IBM Cloud account administrator to request:
+
+1. **Code Engine Writer/Manager role** for your resource group
+2. **Container Registry Manager role** for your resource group
+3. **IAM Identity Service permissions** to create service IDs and assign policies
+
+For more details, see:
+* [Code Engine IAM Permissions](https://cloud.ibm.com/docs/codeengine?topic=codeengine-iam)
+* [Container Registry Access Policies](https://cloud.ibm.com/docs/codeengine?topic=codeengine-add-registry#authorities-registry)
+
+#### Alternative: Using Pre-configured Service ID (Advanced)
+
+If you cannot obtain the required IAM permissions to create service IDs, you can use a pre-configured service ID:
+
+1. Ask your account administrator to create a service ID with Container Registry access
+2. Get the service ID and API key from your administrator
+3. Manually configure your Code Engine job to use this service ID
+
+**Note**: This approach requires manual job creation and is not automated by the job-deployer tool. See [Code Engine documentation](https://cloud.ibm.com/docs/codeengine?topic=codeengine-add-registry) for manual configuration steps.
+
 ### Usage
 
 #### Command Syntax
@@ -137,6 +200,24 @@ Before using this script, ensure you have:
 
 ### Troubleshooting
 
+#### Permission Errors
+
+If you encounter an error like:
+
+```
+FAILED
+The permission to assign required policies to the service ID, which is used to access
+the requested IBM Container Registry location, is insufficient. For details, visit
+https://cloud.ibm.com/docs/codeengine?topic=codeengine-add-registry#authorities-registry
+and ensure you have sufficient authorization within your account.
+```
+
+**Solution**: This error indicates your user account lacks the IAM permissions to create service IDs and assign Container Registry policies. See the [Required IAM Permissions](#required-iam-permissions) section above for details on the permissions needed and how to request them from your account administrator.
+
+**Workaround**: If you cannot obtain the required permissions, consider using the [Alternative: Using Pre-configured Service ID](#alternative-using-pre-configured-service-id-advanced) approach.
+
+#### Authentication Issues
+
 * If the script fails due to authentication issues, try to login again:
 
   ```bash
@@ -156,7 +237,11 @@ Before using this script, ensure you have:
   ibmcloud ce project select --name <project-name>
   ```
 
+#### Other Issues
+
 * If the script fails due to Code Engine issues, refer to [Code Engine Troubleshooting guide](https://cloud.ibm.com/docs/codeengine?topic=codeengine-troubleshooting_over).
+
+* For Container Registry issues, see [Container Registry Troubleshooting](https://cloud.ibm.com/docs/Registry?topic=Registry-troubleshoot-index).
 
 ### License
 
