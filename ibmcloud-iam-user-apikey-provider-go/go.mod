@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/IBM/go-sdk-core/v5 v5.21.3
 	github.com/IBM/platform-services-go-sdk v0.98.0
-	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.21
+	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.22
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/mitchellh/mapstructure v1.5.0
 )
@@ -14,7 +14,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.11 // indirect
 	github.com/go-openapi/errors v0.22.7 // indirect
-	github.com/go-openapi/strfmt v0.26.2 // indirect
+	github.com/go-openapi/strfmt v0.26.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.28.0 // indirect
@@ -28,8 +28,8 @@ require (
 	go.mongodb.org/mongo-driver v1.17.6 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
-	golang.org/x/net v0.54.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
