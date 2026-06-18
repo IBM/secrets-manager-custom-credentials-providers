@@ -18,7 +18,6 @@ require (
 )
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.11 // indirect
 	github.com/go-openapi/errors v0.22.7 // indirect
 	github.com/go-openapi/strfmt v0.26.3 // indirect
@@ -32,9 +31,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
-	go.mongodb.org/mongo-driver v1.17.6 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
