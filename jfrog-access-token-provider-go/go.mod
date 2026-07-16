@@ -3,7 +3,7 @@ module jfrog-access-token-provider-go
 go 1.25.0
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.22.1
+	github.com/IBM/go-sdk-core/v5 v5.23.0
 	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.22
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-resty/resty/v2 v2.17.2
