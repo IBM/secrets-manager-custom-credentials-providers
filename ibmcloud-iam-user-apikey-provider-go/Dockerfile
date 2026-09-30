@@ -1,4 +1,4 @@
-# Use official Golang image as a build stage
+# Use official Golang image as the build stage
 FROM golang:1.26 AS builder
 
 # Set the working directory inside the container
