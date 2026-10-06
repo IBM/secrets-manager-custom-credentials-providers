@@ -31,7 +31,7 @@ validate_env_variables() {
         rm -f /tmp/jq_error
         return 1
     fi
-    
+
     # Make sure job_env_variables exists and is an array
     if ! jq -e '.job_env_variables | type=="array"' "$config_file" >/dev/null 2>&1; then
         echo -e "${RED}Error: job_env_variables is missing or not an array in $config_file${RESET}"
@@ -40,25 +40,25 @@ validate_env_variables() {
 
     # Extract all environment variables
     local num_vars=$(jq '.job_env_variables | length' "$config_file")
-    
+
     for (( i=0; i<$num_vars; i++ )); do
         # Get name and value
         local name=$(jq -r ".job_env_variables[$i].name" "$config_file")
         local value=$(jq -r ".job_env_variables[$i].value" "$config_file")
-        
+
         # Check if name and value exist
         if [[ "$name" == "null" ]]; then
             echo -e "${RED}Error: Missing 'name' field for variable at index $i${RESET}"
             has_errors=true
             continue
         fi
-        
+
         if [[ "$value" == "null" ]]; then
             echo -e "${RED}Error: Missing 'value' field for variable '$name'${RESET}"
             has_errors=true
             continue
         fi
-        
+
         # Check 1: Variable name must start with SMIN_ or SMOUT_
         if [[ ! "$name" =~ ^(SMIN_|SMOUT_) ]]; then
             echo -e "${RED}Error: Variable name '$name' must start with 'SMIN_' or 'SMOUT_'${RESET}"
@@ -81,31 +81,33 @@ validate_env_variables() {
         local has_type=false
         local type_value=""
         local required_value=""
-        
+
         # Split value by comma and process each attribute
         IFS=',' read -ra ATTRS <<< "$value"
         for attr in "${ATTRS[@]}"; do
             # Trim whitespace
             attr=$(echo "$attr" | xargs)
-            
+
             # Extract attribute name and value
             if [[ "$attr" =~ ^([^:]+):(.+)$ ]]; then
                 local attr_name="${BASH_REMATCH[1]}"
                 local attr_val="${BASH_REMATCH[2]}"
-                
+
                 # Trim whitespace
                 attr_name=$(echo "$attr_name" | xargs)
                 attr_val=$(echo "$attr_val" | xargs)
-                
+
                 # Check attribute name
                 if [[ "$attr_name" == "type" ]]; then
                     has_type=true
                     type_value="$attr_val"
-                    
+
                     # Check type value is valid
                     if [[ "$attr_val" =~ ^enum\[ ]]; then
                         # Check enum format (enum[optionA|optionB|...])
-                        if [[ ! "$attr_val" =~ ^enum\[[^]]+\]$ ]]; then
+                        # Each option must match [a-zA-Z0-9._-]+ (canonical rule);
+                        # '|' is only a separator, not a valid option character.
+                        if [[ ! "$attr_val" =~ ^enum\[[a-zA-Z0-9._-]+(\|[a-zA-Z0-9._-]+)+\]$ ]]; then
                             echo -e "${RED}Error: Variable '$name' has invalid enum format. Expected: enum[optionA|optionB|...]${RESET}"
                             has_errors=true
                         fi
@@ -115,13 +117,13 @@ validate_env_variables() {
                     fi
                 elif [[ "$attr_name" == "required" ]]; then
                     required_value="$attr_val"
-                    
+
                     # Check required value is valid
                     if [[ "$attr_val" != "true" && "$attr_val" != "false" ]]; then
                         echo -e "${RED}Error: Variable '$name' has invalid 'required' value '$attr_val'. Must be true or false${RESET}"
                         has_errors=true
                     fi
-                    
+
                     # Check for SMOUT_ variable with required:true
                     if [[ "$name" =~ ^SMOUT_ && "$attr_val" == "true" ]]; then
                         has_required_smout=true
@@ -137,14 +139,14 @@ validate_env_variables() {
                 has_errors=true
             fi
         done
-        
+
         # Check 4: Value must contain "type" attribute
         if [ "$has_type" = false ]; then
             echo -e "${RED}Error: Variable '$name' value does not contain a 'type' attribute${RESET}"
             has_errors=true
         fi
     done
-    
+
     # Check that at least one SMOUT_ variable with required:true is defined
     if [ "$has_required_smout" = false ]; then
         echo -e "${RED}Error: At least one SMOUT_ variable with attribute required:true must be defined${RESET}"
@@ -216,40 +218,25 @@ else
     echo -e "${BLUE}  --build-dockerfile Dockerfile ${RESET}"
 fi
 
-# Parse the job_config.json file and print each env parameter on a new line
-# First validate that the JSON is valid to avoid errors
+# Parse the job_config.json file and print each env parameter on a new line.
+# Values are kept in an array so they are never re-parsed by the shell (no eval).
+ENV_ARGS=()
 if jq empty "$CONFIG_FILE" 2>/dev/null; then
-    ENV_FLAGS=""
-    while read -r line; do
-        # Skip empty lines
-        if [ -z "$line" ]; then
-            continue
-        fi
-        
-        # Extract name and value
-        name=$(echo "$line" | cut -d' ' -f1)
-        value=${line#* }
-        
-        # Print each environment variable on a new line
-        echo -e "${BLUE}  --env $name=\"$value\" ${RESET}"
-        
-        # Build the actual command string for execution
-        ENV_FLAGS="$ENV_FLAGS --env $name=\"$value\""
-    done < <(jq -r '.job_env_variables[] | "\(.name) \(.value)"' "$CONFIG_FILE" 2>/dev/null)
+    while IFS= read -r name && IFS= read -r value; do
+        # Skip if either field is empty (shouldn't happen after validation)
+        [ -z "$name" ] && continue
+
+        # Print each environment variable on a new line (display only)
+        echo -e "${BLUE}  --env $name=$value ${RESET}"
+
+        # Accumulate as discrete array elements — no string splitting, no eval
+        ENV_ARGS+=( --env "$name=$value" )
+    done < <(jq -r '.job_env_variables[] | .name, .value' "$CONFIG_FILE" 2>/dev/null)
 else
     echo -e "${RED}Warning: Skipping environment variables due to invalid JSON format.${RESET}"
-    ENV_FLAGS=""
 fi
 
-# Remove the trailing backslash from the display
 echo -e "${BLUE}${RESET}"
-
-# Build the full command for execution
-if [ "$ACTION" == "create" ]; then
-    CMD="ibmcloud ce job create --name $JOB_NAME --build-source $JOB_DIR --build-dockerfile Dockerfile --retrylimit 0 --cpu 0.5 --memory 1G $ENV_FLAGS"
-else
-    CMD="ibmcloud ce job update --name $JOB_NAME --build-source $JOB_DIR --build-dockerfile Dockerfile $ENV_FLAGS"
-fi
 
 # Ask for confirmation
 echo
@@ -259,8 +246,17 @@ if [[ $confirm != [yY] ]]; then
     exit 0
 fi
 
-# Execute the command
-eval "$CMD"
+# Execute the command using the array — values are passed as literal arguments,
+# no second round of shell parsing (eval removed).
+if [ "$ACTION" == "create" ]; then
+    ibmcloud ce job create --name "$JOB_NAME" --build-source "$JOB_DIR" \
+        --build-dockerfile Dockerfile --retrylimit 0 --cpu 0.5 --memory 1G \
+        "${ENV_ARGS[@]}"
+else
+    ibmcloud ce job update --name "$JOB_NAME" --build-source "$JOB_DIR" \
+        --build-dockerfile Dockerfile \
+        "${ENV_ARGS[@]}"
+fi
 
 # Report status
 if [ $? -eq 0 ]; then
