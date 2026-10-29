@@ -46,6 +46,8 @@ github.com/IBM/platform-services-go-sdk v0.103.4 h1:vvEMFdlFic0w+3U7oWx94BY5gS2P
 github.com/IBM/platform-services-go-sdk v0.103.4/go.mod h1:6cWplM5AFkkZ8iWDxnbvzaPjEFcHCc7am16BSfVpbBI=
 github.com/IBM/platform-services-go-sdk v0.103.5 h1:mv/RgBtcLl1tuQo32oVK3klrFDyPlhgO0xlW/g9yLaE=
 github.com/IBM/platform-services-go-sdk v0.103.5/go.mod h1:JL0744ohhMZEwPoF6LnfATBavYAWLGAj/IhILfxp7LU=
+github.com/IBM/platform-services-go-sdk v0.103.6 h1:ogWdCTrPwzONcOys3xKdEpUE2g4eSrdNsQXk9lPAGJ4=
+github.com/IBM/platform-services-go-sdk v0.103.6/go.mod h1:wKEk+5xGTkibLfETaoOebEBVv9CazbpuqMzccL6XEDc=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.22 h1:HWLMl/KU6cVIDfWrQgmUPpcpRz1PL7s6w+c5MizKys4=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.22/go.mod h1:ShHL1tfkAd1gLZX6vdZgg3K8tDHUgYYA2PERH1Z2wLY=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.23 h1:j0sYbyXCU2peekG/cJ7VbICwRiNVtxtbHx3+l1arS/4=
