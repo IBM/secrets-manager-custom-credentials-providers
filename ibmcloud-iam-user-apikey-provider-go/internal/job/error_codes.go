@@ -6,4 +6,5 @@ const (
 	Err10002 = "ERR10002"
 	Err10003 = "ERR10003"
 	Err10004 = "ERR10004"
+	Err10005 = "ERR10005" // the IAM URL provided in SMIN_URL is not allowed
 )

@@ -95,12 +95,18 @@ func deleteCredentials(smClient SecretsManagerClient, config *Config) {
 }
 
 func initIdentityServices(smClient SecretsManagerClient, config *Config) identity_services_wrapper.Wrapper {
+	// Validate the IAM URL before the API key is read, so the key can never be sent to a non-allowlisted endpoint.
+	iamURL, err := resolveIAMURL(config.SM_URL)
+	if err != nil {
+		logger.Error(fmt.Errorf("invalid IAM URL: %s", err.Error()))
+		updateTaskAboutErrorAndExit(smClient, config, Err10005, fmt.Sprintf("error: %s", err.Error()))
+	}
 	apikey, err := fetchApiKey(smClient, config)
 	if err != nil {
 		logger.Error(fmt.Errorf("error fetching API key secret reference: %s", err.Error()))
 		updateTaskAboutErrorAndExit(smClient, config, Err10001, fmt.Sprintf("error: %s", err.Error()))
 	}
-	identityServices, err := identity_services_wrapper.New(config.SM_URL, apikey)
+	identityServices, err := identity_services_wrapper.New(iamURL, apikey)
 	if err != nil {
 		logger.Error(fmt.Errorf("error initializing IAM Identity Services client: %s", err.Error()))
 		updateTaskAboutErrorAndExit(smClient, config, Err10002, fmt.Sprintf("error: %s", err.Error()))
