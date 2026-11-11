@@ -49,7 +49,13 @@ The job custom environment variables are defined in: [job_config.json](./job_con
 | `SMIN_ACCOUNT_ID`         | The account ID for the created API key.                                                             | Inherited from the API key referenced in `SMIN_APIKEY_SECRET_ID` |
 | `SMIN_SUPPORT_SESSIONS`   | Defines whether you can manage CLI login sessions for the API key.                                  | `false`                                                          |
 | `SMIN_ACTION_WHEN_LEAKED` | Defines the action to take when API key is leaked, valid values are `none`, `disable` and `delete`. | `none`                                                           |
-| `SMIN_URL`                | The URL of the IAM service.                                                                         | `https://iam.cloud.ibm.com`                                      |
+| `SMIN_URL`                | The URL of the IAM service. Must be in the provider's built-in allowlist, see the note below.       | `https://iam.cloud.ibm.com`                                      |
+
+> **Note - `SMIN_URL` is restricted by an allowlist.**
+> The API key referenced by `SMIN_APIKEY_SECRET_ID` is sent to the IAM URL, so `SMIN_URL` is only accepted if it matches an entry in the hardcoded `allowedIAMURLs` list in [`internal/job/iam_url.go`](internal/job/iam_url.go).
+> By default the list contains a single entry: `https://iam.cloud.ibm.com`. A trailing slash is tolerated; userinfo, paths, queries and fragments are rejected.
+> **If you need to override the IAM URL, you must first add the allowed value(s) to `allowedIAMURLs` and only then build and deploy the provider.**
+> A value that is not allowed fails the task with error code `ERR10005` and a detailed message.
 
 #### Output Values
 
