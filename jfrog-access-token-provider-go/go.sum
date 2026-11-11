@@ -20,6 +20,8 @@ github.com/IBM/go-sdk-core/v5 v5.25.1 h1:vLQ5/fjn7+Fc4tWmyALqLytMM4Lrh4XHLUogaZW
 github.com/IBM/go-sdk-core/v5 v5.25.1/go.mod h1:mhCkszCCPNBJiXo+CeDvABZMTs6A+GfmIgeVV95UfaI=
 github.com/IBM/go-sdk-core/v5 v5.25.2 h1:WBB+kbsYsF3Qn2kMuJPZBXPFtH53fyi3UNUaq+VFutY=
 github.com/IBM/go-sdk-core/v5 v5.25.2/go.mod h1:83BKM+mYr4eUlkiCJWf36wjF7PSdOOAxeIjTfoSCnTg=
+github.com/IBM/go-sdk-core/v5 v5.25.3 h1:dL7r1nLoi3xPtX0MdMl0FA0WAM6E6oz40KIu4LwEloI=
+github.com/IBM/go-sdk-core/v5 v5.25.3/go.mod h1:83BKM+mYr4eUlkiCJWf36wjF7PSdOOAxeIjTfoSCnTg=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.22 h1:HWLMl/KU6cVIDfWrQgmUPpcpRz1PL7s6w+c5MizKys4=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.22/go.mod h1:ShHL1tfkAd1gLZX6vdZgg3K8tDHUgYYA2PERH1Z2wLY=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.23 h1:j0sYbyXCU2peekG/cJ7VbICwRiNVtxtbHx3+l1arS/4=
