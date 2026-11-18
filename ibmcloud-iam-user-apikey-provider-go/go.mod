@@ -3,9 +3,9 @@ module ibmcloud-iam-user-apikey-provider-go
 go 1.26.0
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.25.3
+	github.com/IBM/go-sdk-core/v5 v5.25.4
 	github.com/IBM/platform-services-go-sdk v0.103.6
-	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.24
+	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.25
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/mitchellh/mapstructure v1.5.0
 )

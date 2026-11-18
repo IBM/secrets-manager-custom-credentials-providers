@@ -3,8 +3,8 @@ module certificate-provider
 go 1.26.0
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.25.3
-	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.24
+	github.com/IBM/go-sdk-core/v5 v5.25.4
+	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.25
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/stretchr/testify v1.12.1
 )

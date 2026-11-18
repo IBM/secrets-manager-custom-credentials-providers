@@ -3,8 +3,8 @@ module postgres-credentials-provider
 go 1.26.0
 
 require (
-	github.com/IBM/go-sdk-core/v5 v5.25.3
-	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.24
+	github.com/IBM/go-sdk-core/v5 v5.25.4
+	github.com/IBM/secrets-manager-go-sdk/v2 v2.0.25
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.11.0
 )
